@@ -1,5 +1,4 @@
 import type {
-  LinksFunction,
   MetaFunction,
 } from "@remix-run/node";
 import {
@@ -8,27 +7,14 @@ import {
   Meta,
   Outlet,
   Scripts,
+  ScrollRestoration,
   useRouteError,
 } from "@remix-run/react";
 import type { PropsWithChildren } from "react";
+import '@mantine/core/styles.css';
+import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 
-// import globalLargeStylesUrl from "~/styles/global-large.css";
-// import globalMediumStylesUrl from "~/styles/global-medium.css";
-// import globalStylesUrl from "~/styles/global.css";
-
-export const links: LinksFunction = () => [
-  // { rel: "stylesheet", href: globalStylesUrl },
-  // {
-  //   rel: "stylesheet",
-  //   href: globalMediumStylesUrl,
-  //   media: "print, (min-width: 640px)",
-  // },
-  // {
-  //   rel: "stylesheet",
-  //   href: globalLargeStylesUrl,
-  //   media: "screen and (min-width: 1024px)",
-  // },
-];
+import './styles/global.css';
 
 export const meta: MetaFunction = () => {
   const description =
@@ -68,9 +54,11 @@ function Document({
         <Meta />
         {title ? <title>{title}</title> : null}
         <Links />
+        <ColorSchemeScript />
       </head>
       <body>
-        {children}
+        <MantineProvider>{children}</MantineProvider>
+        <ScrollRestoration />
         <Scripts />
       </body>
     </html>

@@ -18,7 +18,6 @@ export const loader = async () => {
 
 export default function Index() {
   const data = useLoaderData<typeof loader>();
-
   return (
     <Box
       style={{

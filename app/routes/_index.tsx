@@ -1,4 +1,4 @@
-import { Box, Button, ScrollArea, Text } from "@mantine/core";
+import { Box, ScrollArea, Text } from "@mantine/core";
 import { json, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
@@ -39,14 +39,30 @@ export default function Index() {
       <Box
         style={{
           border: '1px solid #000',
-          height: '5vh',
           width: '70vw',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          flexDirection: "column"
         }}
       >
-        <Text>No Weekly Task Selected</Text>
+        {
+          [...data.doingTasks, ...data.doneTasks].length === 0 ?
+            (
+              <Box style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', border: "1px solid black", padding: "8px", width: "65vw" }}>
+                <Text>Weekly tasks</Text>
+              </Box>
+            )
+            :
+            (
+              [...data.doingTasks, ...data.doneTasks].map((task) => (
+                <Box key={task.id} style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', border: "1px solid black", padding: "8px", width: "65vw", marginTop: '4px', marginBottom: "4px" }}>
+                  <Text>{task.title}</Text>
+                </Box>
+              ))
+            )
+        }
+
       </Box>
 
       <ScrollArea
@@ -66,7 +82,6 @@ export default function Index() {
           >
             <Box style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', padding: '8px' }}>
               <Text>{task.title}</Text>
-              <Button>Set weekly</Button>
             </Box>
           </Box>
         ))}

@@ -1,6 +1,7 @@
 import { Box, Button, ScrollArea, Text } from "@mantine/core";
 import { json, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
 
 export const meta: MetaFunction = () => {
@@ -11,10 +12,18 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = async () => {
+  const pendingTasks = await db.task.findMany({ where: { status: TASK_STATUS.PENDING } });
+  const doingTasks = await db.task.findMany({ where: { status: TASK_STATUS.DOING } });
+  const doneTasks = await db.task.findMany({ where: { status: TASK_STATUS.DONE } });
+
   return json({
-    taskItems: await db.task.findMany(),
+    pendingTasks,
+    doingTasks,
+    doneTasks,
   });
 };
+
+
 
 export default function Index() {
   const data = useLoaderData<typeof loader>();
@@ -46,7 +55,7 @@ export default function Index() {
           flex: 1,
         }}
       >
-        {data.taskItems.map((task) => (
+        {data.pendingTasks.map((task) => (
           <Box
             key={task.id}
             style={{

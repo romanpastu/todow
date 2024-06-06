@@ -13,7 +13,9 @@ datasource db {
 model Task {
   id         Int       @id @default(autoincrement())
   title      String
-  done       Boolean   @default(false)
+  //status: 1 - pending, 2 - doing, 3 - done, 4 - finished, 5 - archived
+  //finished = done + week passed
+  status     Int   @default(1)
   createdAt  DateTime  @default(now())
   createdBy  Int       // Foreign key field for user
   updatedAt  DateTime  @updatedAt

@@ -2,9 +2,9 @@ import { PrismaClient, User, Category } from "@prisma/client";
 const db = new PrismaClient();
 
 async function seed() {
-  await db.user.deleteMany();
-  await db.category.deleteMany();
-  await db.task.deleteMany();
+//   await db.user.deleteMany();
+//   await db.category.deleteMany();
+//   await db.task.deleteMany();
 
   const users = await Promise.all(
     getUsers().map((user) => {
@@ -25,27 +25,24 @@ async function seed() {
   );
 }
 
-seed();
+
 
 function getTasks(users: User[], categories: Category[]) {
   return [
     {
       title: "Task 1",
-      done: false,
       createdBy: users[0].id,
       priority: 1,
       categoryId: categories[0].id,
     },
     {
       title: "Task 2",
-      done: true,
       createdBy: users[1].id,
       priority: 2,
       categoryId: categories[1].id,
     },
     {
       title: "Task 3",
-      done: false,
       createdBy: users[0].id,
       priority: 3,
       categoryId: categories[1].id,
@@ -78,3 +75,5 @@ const getCategory = (): Omit<Category, "id" | "createdAt" | "updatedAt">[] => {
     },
   ];
 };
+
+seed();

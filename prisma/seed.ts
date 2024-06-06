@@ -1,9 +1,25 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User, Category } from "@prisma/client";
 const db = new PrismaClient();
 
 async function seed() {
+  await db.user.deleteMany();
+  await db.category.deleteMany();
+  await db.task.deleteMany();
+
+  const users = await Promise.all(
+    getUsers().map((user) => {
+      return db.user.create({ data: user });
+    })
+  );
+
+  const categories = await Promise.all(
+    getCategory().map((category) => {
+      return db.category.create({ data: category });
+    })
+  );
+
   await Promise.all(
-    getTasks().map((task) => {
+    getTasks(users, categories).map((task) => {
       return db.task.create({ data: task });
     })
   );
@@ -11,57 +27,54 @@ async function seed() {
 
 seed();
 
-function getTasks() {
+function getTasks(users: User[], categories: Category[]) {
   return [
     {
-        title : "Task 1",
-        done : true,
-        updatedAt: undefined
+      title: "Task 1",
+      done: false,
+      createdBy: users[0].id,
+      priority: 1,
+      categoryId: categories[0].id,
     },
     {
-        title : "Task 2",
-        done : false,
-        updatedAt: undefined
+      title: "Task 2",
+      done: true,
+      createdBy: users[1].id,
+      priority: 2,
+      categoryId: categories[1].id,
     },
     {
-        title : "Task 3",
-        done : true,
-        updatedAt: undefined
+      title: "Task 3",
+      done: false,
+      createdBy: users[0].id,
+      priority: 3,
+      categoryId: categories[1].id,
     },
-    {
-        title : "Task 4",
-        done : false,
-        updatedAt: undefined
-    },
-    {
-        title : "Task 5",
-        done : true,
-        updatedAt: undefined
-    },
-    {
-        title : "Task 6",
-        done : false,
-        updatedAt: undefined
-    },
-    {
-        title : "Task 7",
-        done : true,
-        updatedAt: undefined
-    },
-    {
-        title : "Task 8",
-        done : false,
-        updatedAt: undefined
-    },
-    {
-        title : "Task 9",
-        done : true,
-        updatedAt: undefined
-    },
-    {
-        title : "Task 10",
-        done : false,
-        updatedAt: undefined
-    },
-]
+  ];
 }
+
+const getUsers = (): Omit<User, "id" | "createdAt" | "updatedAt">[] => {
+  return [
+    {
+      email: "user1@example.com",
+      name: "User One",
+      password: "password1",
+    },
+    {
+      email: "user2@example.com",
+      name: "User Two",
+      password: "password2",
+    },
+  ];
+};
+
+const getCategory = (): Omit<Category, "id" | "createdAt" | "updatedAt">[] => {
+  return [
+    {
+      title: "Category 1",
+    },
+    {
+      title: "Category 2",
+    },
+  ];
+};

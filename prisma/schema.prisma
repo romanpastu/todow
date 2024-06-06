@@ -36,6 +36,7 @@ model User {
   tasks     Task[]   // One-to-many relation with Task
 }
 
+//epics
 model Category {
   id        Int      @id @default(autoincrement())
   title     String

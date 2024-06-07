@@ -13,9 +13,10 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-type TaskWithDateString = Omit<Task, 'createdAt' | 'updatedAt'> & {
+type TaskWithDateString = Omit<Task, 'createdAt' | 'updatedAt' | 'dateSetToDoingDone' > & {
   createdAt: string;
   updatedAt: string;
+  dateSetToDoingDone: string | null;
 };
 
 const convertTaskDates = (task: TaskWithDateString): Task => {
@@ -23,6 +24,7 @@ const convertTaskDates = (task: TaskWithDateString): Task => {
     ...task,
     createdAt: new Date(task.createdAt),
     updatedAt: new Date(task.updatedAt),
+    dateSetToDoingDone: task?.dateSetToDoingDone ? new Date(task.dateSetToDoingDone) : null,
   };
 };
 
@@ -200,7 +202,16 @@ export default function Index() {
           display: 'flex',
           flexDirection: 'column',
         }}>
-          <Text>Tasks to do</Text>
+          <Box style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: "8px",
+            alignItems: "center",
+            marginBottom: "8px",
+          }}>
+            <Button>Create new Task</Button>
+          </Box>
+          
           {renderTasks(pendingTasks)}
         </Box>
 

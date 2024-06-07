@@ -34,18 +34,77 @@ function getTasks(users: User[], categories: Category[]) {
       createdBy: users[0].id,
       priority: 1,
       categoryId: categories[0].id,
+      status: 1,
     },
     {
       title: "Task 2",
       createdBy: users[1].id,
       priority: 2,
       categoryId: categories[1].id,
+      status: 1
     },
     {
       title: "Task 3",
       createdBy: users[0].id,
       priority: 3,
       categoryId: categories[1].id,
+      status: 1
+    },
+    {
+      title: "Task 4",
+      createdBy: users[0].id,
+      priority: 1,
+      categoryId: categories[0].id,
+      status: 2,
+    },
+    {
+      title: "Task 5",
+      createdBy: users[1].id,
+      priority: 2,
+      categoryId: categories[1].id,
+      status: 2
+    },
+    {
+      title: "Task 6",
+      createdBy: users[0].id,
+      priority: 3,
+      categoryId: categories[1].id,
+      status: 3
+    },
+    {
+      title: "Task 7",
+      createdBy: users[0].id,
+      priority: 3,
+      categoryId: categories[1].id,
+      status: 3
+    },
+    {
+      title: "Task 8",
+      createdBy: users[0].id,
+      priority: 3,
+      categoryId: categories[1].id,
+      status: 4
+    },
+    {
+      title: "Task 9",
+      createdBy: users[0].id,
+      priority: 3,
+      categoryId: categories[1].id,
+      status: 4
+    },
+    {
+      title: "Task 10",
+      createdBy: users[0].id,
+      priority: 3,
+      categoryId: categories[1].id,
+      status: 5
+    },
+    {
+      title: "Task 11",
+      createdBy: users[0].id,
+      priority: 3,
+      categoryId: categories[1].id,
+      status: 5
     },
   ];
 }

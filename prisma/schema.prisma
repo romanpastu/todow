@@ -23,6 +23,8 @@ model Task {
   priority   Int       @default(1)
   categoryId Int?      // Foreign key field for category
   category   Category? @relation(fields: [categoryId], references: [id]) // Make relation optional
+  description String?
+  dateSetToDoingDone DateTime?
 
   @@index([createdBy]) // Optional: creates an index on the foreign key field for performance
   @@index([categoryId]) // Optional: creates an index on the foreign key field for performance

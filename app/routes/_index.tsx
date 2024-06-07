@@ -1,8 +1,8 @@
-import { Box, Button, ScrollArea, Text } from "@mantine/core";
+import { Box, ScrollArea, Text, Button } from "@mantine/core";
 import { Task } from "@prisma/client";
 
 import { json, type MetaFunction } from "@remix-run/node";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useLoaderData, useFetcher } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
 
@@ -11,7 +11,7 @@ export const meta: MetaFunction = () => {
     { title: "New Remix App" },
     { name: "description", content: "Welcome to Remix!" },
   ];
-}
+};
 
 type TaskWithDateString = Omit<Task, 'createdAt' | 'updatedAt'> & {
   createdAt: string;
@@ -41,26 +41,38 @@ export const loader = async () => {
 export const action = async ({ request }: { request: Request }) => {
   const formData = await request.formData();
   const taskId = formData.get('taskId') as string;
+  const actionType = formData.get('actionType') as string;
 
-  await db.task.update({
-    where: { id: +taskId },
-    data: { status: TASK_STATUS.DOING },
-  });
+  if (actionType === 'start' || actionType === 'doing') {
+    await db.task.update({
+      where: { id: +taskId },
+      data: { status: TASK_STATUS.DOING },
+    });
+  } else if (actionType === 'cancel') {
+    await db.task.update({
+      where: { id: +taskId },
+      data: { status: TASK_STATUS.PENDING },
+    });
+  } else if (actionType === 'done') {
+    await db.task.update({
+      where: { id: +taskId },
+      data: { status: TASK_STATUS.DONE },
+    });
+  }
 
   return json({ success: true });
 };
 
-
 export default function Index() {
   const data = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
-  
+
   const doingTasks = data.doingTasks.map(convertTaskDates);
   const doneTasks = data.doneTasks.map(convertTaskDates);
   const pendingTasks = data.pendingTasks.map(convertTaskDates);
 
   const renderTasks = (tasks: Task[]) => {
-    return tasks.length === 0 ? (
+    return tasks?.length === 0 ? (
       <Box
         style={{
           display: 'flex',
@@ -74,7 +86,6 @@ export default function Index() {
         <Text>Weekly tasks</Text>
       </Box>
     ) : (
-
       tasks.map((task: Task) => (
         <Box
           key={task.id}
@@ -90,7 +101,64 @@ export default function Index() {
           }}
         >
           <Text>{task.title}</Text>
-          <Button type="submit" variant="light" color="gray" size="xs" radius="xs"> Start </Button>
+          <Box style={{ display: 'flex', gap: '8px' }}>
+            {task.status === TASK_STATUS.DOING && (
+              <>
+                <fetcher.Form method="post">
+                  <input type="hidden" name="taskId" value={task.id} />
+                  <input type="hidden" name="actionType" value="cancel" />
+                  <Button
+                    type="submit"
+                    size="xs"
+                    variant="gradient"
+                    style={{ backgroundColor: 'lightgray' }}
+                  >
+                    Cancel
+                  </Button>
+                </fetcher.Form>
+                <fetcher.Form method="post">
+                  <input type="hidden" name="taskId" value={task.id} />
+                  <input type="hidden" name="actionType" value="done" />
+                  <Button
+                    type="submit"
+                    size="xs"
+                    variant="gradient"
+                    style={{ backgroundColor: 'lightgray' }}
+                  >
+                    Done
+                  </Button>
+                </fetcher.Form>
+              </>
+            )}
+            {task.status === TASK_STATUS.PENDING && (
+              <fetcher.Form method="post">
+                <input type="hidden" name="taskId" value={task.id} />
+                <input type="hidden" name="actionType" value="start" />
+                <Button
+                  type="submit"
+                  size="xs"
+                  variant="gradient"
+                  style={{ backgroundColor: 'lightgray' }}
+                >
+                  Start
+                </Button>
+              </fetcher.Form>
+            )}
+            {task.status === TASK_STATUS.DONE && (
+              <fetcher.Form method="post">
+                <input type="hidden" name="taskId" value={task.id} />
+                <input type="hidden" name="actionType" value="doing" />
+                <Button
+                  type="submit"
+                  size="xs"
+                  variant="gradient"
+                  style={{ backgroundColor: 'lightgray' }}
+                >
+                  Doing
+                </Button>
+              </fetcher.Form>
+            )}
+          </Box>
         </Box>
       ))
     );
@@ -127,32 +195,15 @@ export default function Index() {
           marginTop: '16px',
         }}
       >
-        {pendingTasks.map((task) => (
-          <Box
-            key={task.id}
-            style={{
-              border: '1px solid #000',
-              width: '100%',
-              marginTop: '8px',
-              padding: '8px',
-            }}
-          >
-            <Box
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}
-              
-            >
-              <Text>{task.title}</Text>
-              <fetcher.Form method="post">
-                <input type="hidden" name="taskId" value={task.id} />
-                <Button type="submit" variant="light" color="gray" size="xs" radius="xs"> Start </Button>
-              </fetcher.Form>
-            </Box>
-          </Box>
-        ))}
+        <Box style={{
+          alignItems: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          <Text>Tasks to do</Text>
+          {renderTasks(pendingTasks)}
+        </Box>
+
       </ScrollArea>
     </Box>
   );

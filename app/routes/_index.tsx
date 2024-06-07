@@ -1,12 +1,11 @@
-import { Box, ScrollArea, Button, Input} from "@mantine/core";
+import { Box, ScrollArea, Button, Input } from "@mantine/core";
+import { useState } from "react";
 import { json, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
 import TaskList from "~/components/TaskList";
 import type { Task } from "@prisma/client";
-import { useEffect, useState } from "react";
-
 
 export const meta: MetaFunction = () => {
   return [
@@ -68,15 +67,6 @@ export const action = async ({ request }: { request: Request }) => {
 };
 
 export default function Index() {
-  //TO-DO
-  //OPEN A TASK
-  //DELETE A TASK
-  //CREATE A TASK
-  //ERROR HANDLER
-  //TASK PROCESSOR ON 00:00 DAY 1 OK WEEK
-  //CATEGORIES LIST
-  //CREATE CATEGORIES
-  //LOGIN
   const data = useLoaderData<{
     pendingTasks: TaskWithDateString[];
     doingTasks: TaskWithDateString[];
@@ -88,15 +78,10 @@ export default function Index() {
   const pendingTasks = data.pendingTasks.map(convertTaskDates);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredPendingTasks, setFilteredPendingTasks] = useState(pendingTasks);
 
-  useEffect(() => {
-    setFilteredPendingTasks(
-      pendingTasks.filter(task =>
-        task.title.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    );
-  }, [searchQuery, pendingTasks]);
+  const filteredPendingTasks = pendingTasks.filter((task) =>
+    task.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Box

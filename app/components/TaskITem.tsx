@@ -3,15 +3,31 @@ import { Box, Button, Text } from "@mantine/core";
 import { useFetcher } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
 import type { Task } from "@prisma/client";
-
+import { IconRotate } from '@tabler/icons-react';
+import '../styles/rotate.css'
 interface TaskItemProps {
   task: Task;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task } : {
-    task: Task;
+const getBackGroundColor = (status: number) => {
+  switch (status) {
+    case TASK_STATUS.PENDING:
+      return "lightgray";
+    case TASK_STATUS.DOING:
+      return "lightblue";
+    case TASK_STATUS.DONE:
+      return "lightgreen";
+    default:
+      return "white";
+  }
+}
+
+const TaskItem: React.FC<TaskItemProps> = ({ task }: {
+  task: Task;
 }) => {
   const fetcher = useFetcher();
+  const backgroundColor = getBackGroundColor(task.status);
+
 
   return (
     <Box
@@ -26,12 +42,20 @@ const TaskItem: React.FC<TaskItemProps> = ({ task } : {
         marginTop: "4px",
         marginBottom: "4px",
         cursor: "pointer",
+        backgroundColor
       }}
     >
       <Text>{task.title}</Text>
       <Box style={{ display: "flex", gap: "8px" }}>
         {task.status === TASK_STATUS.DOING && (
-          <>
+          <Box style={{
+            display: "flex",
+            gap: "8px",
+            alignContent: "center",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+            <IconRotate size={20} className="rotate" /> 
             <fetcher.Form method="post">
               <input type="hidden" name="taskId" value={task.id} />
               <input type="hidden" name="actionType" value="cancel" />
@@ -53,10 +77,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task } : {
                 variant="gradient"
                 style={{ backgroundColor: "lightgray" }}
               >
-                Done
+                Set to Done
               </Button>
             </fetcher.Form>
-          </>
+          </Box>
         )}
         {task.status === TASK_STATUS.PENDING && (
           <fetcher.Form method="post">
@@ -82,7 +106,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task } : {
               variant="gradient"
               style={{ backgroundColor: "lightgray" }}
             >
-              Doing
+              Return to Doing
             </Button>
           </fetcher.Form>
         )}

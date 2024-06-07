@@ -1,4 +1,3 @@
-// components/TaskList.tsx
 import { Box , Text} from "@mantine/core";
 import type { Task } from "@prisma/client";
 import TaskItem from "./TaskITem";

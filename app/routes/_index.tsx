@@ -1,10 +1,11 @@
-import { Box, ScrollArea, Text, Button } from "@mantine/core";
-import { Task } from "@prisma/client";
-
+// routes/index.tsx
+import { Box, ScrollArea, Button } from "@mantine/core";
 import { json, type MetaFunction } from "@remix-run/node";
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
+import TaskList from "~/components/TaskList";
+import type { Task } from "@prisma/client";
 
 export const meta: MetaFunction = () => {
   return [
@@ -13,7 +14,7 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-type TaskWithDateString = Omit<Task, 'createdAt' | 'updatedAt' | 'dateSetToDoingDone' > & {
+type TaskWithDateString = Omit<Task, "createdAt" | "updatedAt" | "dateSetToDoingDone"> & {
   createdAt: string;
   updatedAt: string;
   dateSetToDoingDone: string | null;
@@ -42,20 +43,20 @@ export const loader = async () => {
 
 export const action = async ({ request }: { request: Request }) => {
   const formData = await request.formData();
-  const taskId = formData.get('taskId') as string;
-  const actionType = formData.get('actionType') as string;
+  const taskId = formData.get("taskId") as string;
+  const actionType = formData.get("actionType") as string;
 
-  if (actionType === 'start' || actionType === 'doing') {
+  if (actionType === "start" || actionType === "doing") {
     await db.task.update({
       where: { id: +taskId },
       data: { status: TASK_STATUS.DOING },
     });
-  } else if (actionType === 'cancel') {
+  } else if (actionType === "cancel") {
     await db.task.update({
       where: { id: +taskId },
       data: { status: TASK_STATUS.PENDING },
     });
-  } else if (actionType === 'done') {
+  } else if (actionType === "done") {
     await db.task.update({
       where: { id: +taskId },
       data: { status: TASK_STATUS.DONE },
@@ -66,155 +67,67 @@ export const action = async ({ request }: { request: Request }) => {
 };
 
 export default function Index() {
-  const data = useLoaderData<typeof loader>();
-  const fetcher = useFetcher();
+  const data = useLoaderData<{
+    pendingTasks: TaskWithDateString[];
+    doingTasks: TaskWithDateString[];
+    doneTasks: TaskWithDateString[];
+  }>();
 
   const doingTasks = data.doingTasks.map(convertTaskDates);
   const doneTasks = data.doneTasks.map(convertTaskDates);
   const pendingTasks = data.pendingTasks.map(convertTaskDates);
 
-  const renderTasks = (tasks: Task[]) => {
-    return tasks?.length === 0 ? (
-      <Box
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          border: '1px solid black',
-          padding: '8px',
-          width: '65vw',
-        }}
-      >
-        <Text>Weekly tasks</Text>
-      </Box>
-    ) : (
-      tasks.map((task: Task) => (
-        <Box
-          key={task.id}
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            border: '1px solid black',
-            padding: '8px',
-            width: '65vw',
-            marginTop: '4px',
-            marginBottom: '4px',
-          }}
-        >
-          <Text>{task.title}</Text>
-          <Box style={{ display: 'flex', gap: '8px' }}>
-            {task.status === TASK_STATUS.DOING && (
-              <>
-                <fetcher.Form method="post">
-                  <input type="hidden" name="taskId" value={task.id} />
-                  <input type="hidden" name="actionType" value="cancel" />
-                  <Button
-                    type="submit"
-                    size="xs"
-                    variant="gradient"
-                    style={{ backgroundColor: 'lightgray' }}
-                  >
-                    Cancel
-                  </Button>
-                </fetcher.Form>
-                <fetcher.Form method="post">
-                  <input type="hidden" name="taskId" value={task.id} />
-                  <input type="hidden" name="actionType" value="done" />
-                  <Button
-                    type="submit"
-                    size="xs"
-                    variant="gradient"
-                    style={{ backgroundColor: 'lightgray' }}
-                  >
-                    Done
-                  </Button>
-                </fetcher.Form>
-              </>
-            )}
-            {task.status === TASK_STATUS.PENDING && (
-              <fetcher.Form method="post">
-                <input type="hidden" name="taskId" value={task.id} />
-                <input type="hidden" name="actionType" value="start" />
-                <Button
-                  type="submit"
-                  size="xs"
-                  variant="gradient"
-                  style={{ backgroundColor: 'lightgray' }}
-                >
-                  Start
-                </Button>
-              </fetcher.Form>
-            )}
-            {task.status === TASK_STATUS.DONE && (
-              <fetcher.Form method="post">
-                <input type="hidden" name="taskId" value={task.id} />
-                <input type="hidden" name="actionType" value="doing" />
-                <Button
-                  type="submit"
-                  size="xs"
-                  variant="gradient"
-                  style={{ backgroundColor: 'lightgray' }}
-                >
-                  Doing
-                </Button>
-              </fetcher.Form>
-            )}
-          </Box>
-        </Box>
-      ))
-    );
-  };
-
   return (
     <Box
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        height: '100vh',
-        padding: '20px',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        height: "100vh",
+        padding: "20px",
       }}
     >
       <Box
         style={{
-          border: '1px solid #000',
-          width: '70vw',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          padding: '16px',
+          border: "1px solid #000",
+          width: "70vw",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          padding: "16px",
         }}
       >
-        {renderTasks([...doingTasks, ...doneTasks])}
+        <TaskList tasks={[...doingTasks, ...doneTasks]} />
       </Box>
 
       <ScrollArea
         style={{
-          width: '70vw',
+          width: "70vw",
           flex: 1,
-          marginTop: '16px',
+          marginTop: "16px",
         }}
       >
-        <Box style={{
-          alignItems: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-        }}>
-          <Box style={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "8px",
+        <Box
+          style={{
             alignItems: "center",
-            marginBottom: "8px",
-          }}>
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <Box
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: "8px",
+              alignItems: "center",
+              marginBottom: "8px",
+            }}
+          >
             <Button>Create new Task</Button>
           </Box>
-          
-          {renderTasks(pendingTasks)}
+          <TaskList tasks={pendingTasks} />
         </Box>
-
       </ScrollArea>
     </Box>
   );

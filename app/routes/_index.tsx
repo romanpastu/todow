@@ -1,8 +1,8 @@
-import { Box, ScrollArea, Text } from "@mantine/core";
+import { Box, Button, ScrollArea, Text } from "@mantine/core";
 import { Task } from "@prisma/client";
 
 import { json, type MetaFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
 
@@ -38,11 +38,23 @@ export const loader = async () => {
   });
 };
 
+export const action = async ({ request }: { request: Request }) => {
+  const formData = await request.formData();
+  const taskId = formData.get('taskId') as string;
+
+  await db.task.update({
+    where: { id: +taskId },
+    data: { status: TASK_STATUS.DOING },
+  });
+
+  return json({ success: true });
+};
 
 
 export default function Index() {
   const data = useLoaderData<typeof loader>();
-
+  const fetcher = useFetcher();
+  
   const doingTasks = data.doingTasks.map(convertTaskDates);
   const doneTasks = data.doneTasks.map(convertTaskDates);
   const pendingTasks = data.pendingTasks.map(convertTaskDates);
@@ -78,6 +90,7 @@ export default function Index() {
           }}
         >
           <Text>{task.title}</Text>
+          <Button type="submit" variant="light" color="gray" size="xs" radius="xs"> Start </Button>
         </Box>
       ))
     );
@@ -130,8 +143,13 @@ export default function Index() {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
               }}
+              
             >
               <Text>{task.title}</Text>
+              <fetcher.Form method="post">
+                <input type="hidden" name="taskId" value={task.id} />
+                <Button type="submit" variant="light" color="gray" size="xs" radius="xs"> Start </Button>
+              </fetcher.Form>
             </Box>
           </Box>
         ))}

@@ -30,9 +30,9 @@ const convertTaskDates = (task: TaskWithDateString): Task => {
 };
 
 export const loader = async () => {
-  const pendingTasks = await db.task.findMany({ where: { status: TASK_STATUS.PENDING } });
-  const doingTasks = await db.task.findMany({ where: { status: TASK_STATUS.DOING } });
-  const doneTasks = await db.task.findMany({ where: { status: TASK_STATUS.DONE } });
+  const pendingTasks = await db.task.findMany({ where: { status: TASK_STATUS.PENDING }, include: { category: true }, });
+  const doingTasks = await db.task.findMany({ where: { status: TASK_STATUS.DOING }, include: { category: true }, });
+  const doneTasks = await db.task.findMany({ where: { status: TASK_STATUS.DONE }, include: { category: true }, });
 
   return json({
     pendingTasks,

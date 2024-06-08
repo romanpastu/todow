@@ -2,15 +2,19 @@
 import { Box, Button, Text } from "@mantine/core";
 import { useFetcher } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
-import type { Task } from "@prisma/client";
+import type { Category, Task } from "@prisma/client";
 import { IconRotate } from '@tabler/icons-react';
 import '../styles/rotate.css'
 import { useDisclosure } from "@mantine/hooks";
 import TaskModal from "./TaskModal";
-interface TaskItemProps {
-  task: Task;
-}
 
+
+export type TaskWithCategory = Task & {
+  category: Category
+};
+interface TaskItemProps {
+  task: TaskWithCategory;
+}
 const getBackGroundColor = (status: number) => {
   switch (status) {
     case TASK_STATUS.PENDING:
@@ -25,7 +29,7 @@ const getBackGroundColor = (status: number) => {
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task }: {
-  task: Task;
+  task: TaskWithCategory;
 }) => {
   const fetcher = useFetcher();
   const backgroundColor = getBackGroundColor(task.status);

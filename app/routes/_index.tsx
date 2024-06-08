@@ -77,12 +77,14 @@ export const action = async ({ request }: { request: Request }) => {
   }else if (actionType === "update") {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
+    const priority = parseInt(formData.get("priority") as string);
 
     await db.task.update({
       where: { id: +taskId },
       data: {
         title,
         description,
+        priority,
       },
     });
 

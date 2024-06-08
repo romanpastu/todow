@@ -1,5 +1,5 @@
-import { Box, Button, Grid, Modal, Text, TextInput, Textarea } from "@mantine/core";
-import { TASK_STATUS, getStatusString } from "~/constants/tasks";
+import { Box, Button, Grid, Modal, Select, Text, TextInput, Textarea } from "@mantine/core";
+import {  TASK_STATUS, getPrioritiesMap, getStatusString } from "~/constants/tasks";
 import { TaskWithCategory } from "./TaskITem";
 import { useState } from "react";
 import { useFetcher } from "@remix-run/react";
@@ -11,6 +11,7 @@ export default function TaskModal({ task, opened, onClose }: {
 }) {
     const [title, setTitle] = useState(task?.title || "");
     const [description, setDescription] = useState(task?.description || "");
+    const [priority, setPriority] = useState(task?.priority?.toString());
     const [confirmDelete, setConfirmDelete] = useState(false);
     const fetcher = useFetcher();
 
@@ -19,6 +20,7 @@ export default function TaskModal({ task, opened, onClose }: {
             taskId: task.id.toString(),
             title,
             description,
+            priority,
             actionType: "update"
         }, {
             method: "put",
@@ -35,6 +37,8 @@ export default function TaskModal({ task, opened, onClose }: {
         });
         onClose(); // Close the modal after deleting
     };
+
+    const prioritiesMap = getPrioritiesMap();
 
     return (
         <>
@@ -58,7 +62,14 @@ export default function TaskModal({ task, opened, onClose }: {
 
                         <Grid.Col span={12}>
                             <Text><strong>Priority:</strong></Text>
-                            <Text>{task.priority}</Text>
+                            <Select
+                                value={priority}
+                                onChange={(e) => setPriority(e || "")}
+                                data={Object.entries(prioritiesMap).map(([value, label]) => ({
+                                    value,
+                                    label,
+                                }))}
+                            />
                         </Grid.Col>
 
                         <Grid.Col span={12}>

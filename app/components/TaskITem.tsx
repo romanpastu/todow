@@ -62,7 +62,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }: {
       >
 
         <Text>{task.title}</Text>
+        
         <Box style={{ display: "flex", gap: "8px" }}>
+        {task.status === TASK_STATUS.PENDING && <Text color="red" size="15px">P{task?.priority}</Text>}
           {task.status === TASK_STATUS.DOING && (
             <Box style={{
               display: "flex",

@@ -8,6 +8,12 @@ export enum TASK_STATUS {
     ARCHIVED = 5
 }
 
+export enum TASK_PRIORITY {
+    HIGH = 1,
+    MEDIUM = 2,
+    LOW = 3
+}
+
 export const getStatusString = (status: TASK_STATUS) => {
     switch (status) {
         case TASK_STATUS.PENDING:
@@ -22,5 +28,13 @@ export const getStatusString = (status: TASK_STATUS) => {
             return "Archived";
         default:
             return "Unknown";
+    }
+}
+
+export const getPrioritiesMap = () => {
+    return {
+        [TASK_PRIORITY.HIGH]: "High",
+        [TASK_PRIORITY.MEDIUM]: "Medium",
+        [TASK_PRIORITY.LOW]: "Low",
     }
 }

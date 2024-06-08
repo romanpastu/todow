@@ -5,6 +5,8 @@ import { TASK_STATUS } from "~/constants/tasks";
 import type { Task } from "@prisma/client";
 import { IconRotate } from '@tabler/icons-react';
 import '../styles/rotate.css'
+import { useDisclosure } from "@mantine/hooks";
+import TaskModal from "./TaskModal";
 interface TaskItemProps {
   task: Task;
 }
@@ -27,91 +29,102 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }: {
 }) => {
   const fetcher = useFetcher();
   const backgroundColor = getBackGroundColor(task.status);
-
+  const [opened, { open, close }] = useDisclosure(false);
 
   return (
-    <Box
-      key={task.id}
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        border: "1px solid black",
-        padding: "8px",
-        width: "65vw",
-        marginTop: "4px",
-        marginBottom: "4px",
-        cursor: "pointer",
-        backgroundColor
-      }}
-    >
-      <Text>{task.title}</Text>
-      <Box style={{ display: "flex", gap: "8px" }}>
-        {task.status === TASK_STATUS.DOING && (
-          <Box style={{
-            display: "flex",
-            gap: "8px",
-            alignContent: "center",
-            alignItems: "center",
-            justifyContent: "center",
-          }}>
-            <IconRotate size={20} className="rotate" /> 
+    <>
+      <TaskModal
+        task={task}
+        opened={opened}
+        onClose={close}
+      />
+      <Box
+        key={task.id}
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          border: "1px solid black",
+          padding: "8px",
+          width: "65vw",
+          marginTop: "4px",
+          marginBottom: "4px",
+          cursor: "pointer",
+          backgroundColor
+        }}
+        onClick={() => {
+          console.log("clicked");
+          open();
+        }}
+      >
+
+        <Text>{task.title}</Text>
+        <Box style={{ display: "flex", gap: "8px" }}>
+          {task.status === TASK_STATUS.DOING && (
+            <Box style={{
+              display: "flex",
+              gap: "8px",
+              alignContent: "center",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+              <IconRotate size={20} className="rotate" />
+              <fetcher.Form method="post">
+                <input type="hidden" name="taskId" value={task.id} />
+                <input type="hidden" name="actionType" value="cancel" />
+                <Button
+                  type="submit"
+                  size="xs"
+                  variant="gradient"
+                  style={{ backgroundColor: "lightgray" }}
+                >
+                  Cancel
+                </Button>
+              </fetcher.Form>
+              <fetcher.Form method="post">
+                <input type="hidden" name="taskId" value={task.id} />
+                <input type="hidden" name="actionType" value="done" />
+                <Button
+                  type="submit"
+                  size="xs"
+                  variant="gradient"
+                  style={{ backgroundColor: "lightgray" }}
+                >
+                  Set to Done
+                </Button>
+              </fetcher.Form>
+            </Box>
+          )}
+          {task.status === TASK_STATUS.PENDING && (
             <fetcher.Form method="post">
               <input type="hidden" name="taskId" value={task.id} />
-              <input type="hidden" name="actionType" value="cancel" />
+              <input type="hidden" name="actionType" value="start" />
               <Button
                 type="submit"
                 size="xs"
                 variant="gradient"
                 style={{ backgroundColor: "lightgray" }}
               >
-                Cancel
+                Start
               </Button>
             </fetcher.Form>
+          )}
+          {task.status === TASK_STATUS.DONE && (
             <fetcher.Form method="post">
               <input type="hidden" name="taskId" value={task.id} />
-              <input type="hidden" name="actionType" value="done" />
+              <input type="hidden" name="actionType" value="doing" />
               <Button
                 type="submit"
                 size="xs"
                 variant="gradient"
                 style={{ backgroundColor: "lightgray" }}
               >
-                Set to Done
+                Return to Doing
               </Button>
             </fetcher.Form>
-          </Box>
-        )}
-        {task.status === TASK_STATUS.PENDING && (
-          <fetcher.Form method="post">
-            <input type="hidden" name="taskId" value={task.id} />
-            <input type="hidden" name="actionType" value="start" />
-            <Button
-              type="submit"
-              size="xs"
-              variant="gradient"
-              style={{ backgroundColor: "lightgray" }}
-            >
-              Start
-            </Button>
-          </fetcher.Form>
-        )}
-        {task.status === TASK_STATUS.DONE && (
-          <fetcher.Form method="post">
-            <input type="hidden" name="taskId" value={task.id} />
-            <input type="hidden" name="actionType" value="doing" />
-            <Button
-              type="submit"
-              size="xs"
-              variant="gradient"
-              style={{ backgroundColor: "lightgray" }}
-            >
-              Return to Doing
-            </Button>
-          </fetcher.Form>
-        )}
-      </Box>
-    </Box>
+          )}
+        </Box>
+      </Box></>
   );
 };
 

@@ -1,14 +1,13 @@
 import { Box , Text} from "@mantine/core";
-import type { Task } from "@prisma/client";
-import TaskItem from "./TaskITem";
+import TaskItem, { TaskWithCategory } from "./TaskITem";
 
 
 interface TaskListProps {
-  tasks: Task[];
+  tasks: TaskWithCategory[];
 }
 
 const TaskList: React.FC<TaskListProps> = ({ tasks } : {
-    tasks: Task[];
+    tasks: TaskWithCategory[];
 }) => {
   return tasks.length === 0 ? (
     <Box

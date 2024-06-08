@@ -10,7 +10,7 @@ import TaskModal from "./TaskModal";
 
 
 export type TaskWithCategory = Task & {
-  category: Category
+  category?: Category
 };
 interface TaskItemProps {
   task: TaskWithCategory;
@@ -57,7 +57,6 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }: {
           backgroundColor
         }}
         onClick={() => {
-          console.log("clicked");
           open();
         }}
       >

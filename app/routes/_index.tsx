@@ -5,7 +5,7 @@ import { useLoaderData } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
 import TaskList from "~/components/TaskList";
-import type { Task } from "@prisma/client";
+import { TaskWithCategory } from "~/components/TaskITem";
 
 export const meta: MetaFunction = () => {
   return [
@@ -14,21 +14,34 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-type TaskWithDateString = Omit<Task, "createdAt" | "updatedAt" | "dateSetToDoingDone"> & {
+
+type TaskWithCategoryJson = Omit<TaskWithCategory, "createdAt" | "updatedAt" | "dateSetToDoingDone" | "category"> & {
   createdAt: string;
   updatedAt: string;
   dateSetToDoingDone: string | null;
+  category: {
+    id: number;
+    title: string;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
 };
 
-const convertTaskDates = (task: TaskWithDateString): Task => {
+const convertTaskDates = (task: TaskWithCategoryJson): TaskWithCategory => {
   return {
     ...task,
     createdAt: new Date(task.createdAt),
     updatedAt: new Date(task.updatedAt),
     dateSetToDoingDone: task?.dateSetToDoingDone ? new Date(task.dateSetToDoingDone) : null,
+    category: task.category
+      ? {
+          ...task.category,
+          createdAt: new Date(task.category.createdAt),
+          updatedAt: new Date(task.category.updatedAt),
+        }
+      : undefined,
   };
 };
-
 export const loader = async () => {
   const pendingTasks = await db.task.findMany({ where: { status: TASK_STATUS.PENDING }, include: { category: true }, });
   const doingTasks = await db.task.findMany({ where: { status: TASK_STATUS.DOING }, include: { category: true }, });
@@ -61,6 +74,23 @@ export const action = async ({ request }: { request: Request }) => {
       where: { id: +taskId },
       data: { status: TASK_STATUS.DONE },
     });
+  }else if (actionType === "update") {
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+
+    await db.task.update({
+      where: { id: +taskId },
+      data: {
+        title,
+        description,
+      },
+    });
+
+    return json({ success: true });
+  }else if(actionType === "delete") {
+    await db.task.delete({
+      where: { id: +taskId },
+    });
   }
 
   return json({ success: true });
@@ -68,9 +98,9 @@ export const action = async ({ request }: { request: Request }) => {
 
 export default function Index() {
   const data = useLoaderData<{
-    pendingTasks: TaskWithDateString[];
-    doingTasks: TaskWithDateString[];
-    doneTasks: TaskWithDateString[];
+    pendingTasks: TaskWithCategoryJson[];
+    doingTasks: TaskWithCategoryJson[];
+    doneTasks: TaskWithCategoryJson[];
   }>();
 
   const doingTasks = data.doingTasks.map(convertTaskDates);

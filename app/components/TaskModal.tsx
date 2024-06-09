@@ -122,7 +122,7 @@ export default function TaskModal({ task, opened, onClose, isCreate}: {
                                 <Button onClick={handleCreate}>Create</Button>
                                 :
                                 <Button onClick={handleUpdate}>Save</Button>}
-                                {task?.status === TASK_STATUS.PENDING && <Button onClick={() => setConfirmDelete(true)} style={{
+                                {(task?.status === TASK_STATUS.PENDING || task?.status === TASK_STATUS.FINISHED) && <Button onClick={() => setConfirmDelete(true)} style={{
                                     backgroundColor: "red",
                                 }}>Delete</Button>}
                             </Box>

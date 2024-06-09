@@ -23,6 +23,8 @@ const getBackGroundColor = (status: number) => {
       return "lightblue";
     case TASK_STATUS.DONE:
       return "lightgreen";
+    case TASK_STATUS.FINISHED:
+      return "lightgreen";
     default:
       return "white";
   }

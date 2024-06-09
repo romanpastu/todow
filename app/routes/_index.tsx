@@ -8,7 +8,7 @@ import TaskList from "~/components/TaskList";
 import { TaskWithCategory } from "~/components/TaskITem";
 import TaskModal from "~/components/TaskModal";
 import { useDisclosure } from "@mantine/hooks";
-
+import { useNavigate } from "react-router-dom";
 export const meta: MetaFunction = () => {
   return [
     { title: "New Remix App" },
@@ -17,7 +17,7 @@ export const meta: MetaFunction = () => {
 };
 
 
-type TaskWithCategoryJson = Omit<TaskWithCategory, "createdAt" | "updatedAt" | "dateSetToDoingDone" | "category"> & {
+export type TaskWithCategoryJson = Omit<TaskWithCategory, "createdAt" | "updatedAt" | "dateSetToDoingDone" | "category"> & {
   createdAt: string;
   updatedAt: string;
   dateSetToDoingDone: string | null;
@@ -29,7 +29,7 @@ type TaskWithCategoryJson = Omit<TaskWithCategory, "createdAt" | "updatedAt" | "
   } | null;
 };
 
-const convertTaskDates = (task: TaskWithCategoryJson): TaskWithCategory => {
+export const convertTaskDates = (task: TaskWithCategoryJson): TaskWithCategory => {
   return {
     ...task,
     createdAt: new Date(task.createdAt),
@@ -134,7 +134,7 @@ export default function Index() {
     task.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
   const [opened, { open, close }] = useDisclosure(false);
-
+  const navigate = useNavigate();
   return (
     <Box
       style={{
@@ -191,7 +191,7 @@ export default function Index() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.currentTarget.value)}
             />
-            <Button>GoTo Completed Tasks</Button>
+           <Button onClick={() => navigate('/completed')}>GoTo Completed Tasks</Button>
           </Box>
           <TaskList tasks={filteredPendingTasks} />
         </Box>

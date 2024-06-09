@@ -47,4 +47,5 @@ model Category {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   tasks     Task[]   // One-to-many relation with Task
+  createdBy  Int       // Foreign key field for user
 }

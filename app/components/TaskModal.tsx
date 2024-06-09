@@ -49,7 +49,7 @@ export default function TaskModal({ task, opened, onClose, isCreate}: {
         fetcher.submit({
             title,
             description,
-            priority: priority || "",
+            priority: priority || 3,
             status: TASK_STATUS.PENDING,
             actionType: "create"
         }, {

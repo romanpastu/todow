@@ -4,10 +4,11 @@ import { TaskWithCategory } from "./TaskITem";
 import { useState } from "react";
 import { useFetcher } from "@remix-run/react";
 
-export default function TaskModal({ task, opened, onClose }: {
-    task: TaskWithCategory;
+export default function TaskModal({ task, opened, onClose, isCreate}: {
+    task: TaskWithCategory | null;
     opened: boolean;
     onClose: () => void;
+    isCreate?: boolean;
 }) {
     const [title, setTitle] = useState(task?.title || "");
     const [description, setDescription] = useState(task?.description || "");
@@ -15,28 +16,47 @@ export default function TaskModal({ task, opened, onClose }: {
     const [confirmDelete, setConfirmDelete] = useState(false);
     const fetcher = useFetcher();
 
-    const handleSave = () => {
-        fetcher.submit({
-            taskId: task.id.toString(),
-            title,
-            description,
-            priority,
-            actionType: "update"
-        }, {
-            method: "put",
-        });
-        onClose(); // Close the modal after saving
+    const handleUpdate = () => {
+        if (task) {
+            fetcher.submit({
+                taskId: task.id.toString(),
+                title,
+                description,
+                priority: priority || "",
+                actionType: "update"
+            }, {
+                method: "put",
+            });
+            onClose(); // Close the modal after saving
+        }
     };
 
+
     const handleDelete = () => {
-        fetcher.submit({
-            taskId: task.id.toString(),
-            actionType: "delete"
-        }, {
-            method: "delete",
-        });
-        onClose(); // Close the modal after deleting
+        if (task) {
+            fetcher.submit({
+                taskId: task.id.toString(),
+                actionType: "delete"
+            }, {
+                method: "delete",
+            });
+            onClose(); // Close the modal after deleting
+        }
     };
+
+
+    const handleCreate = () => {
+        fetcher.submit({
+            title,
+            description,
+            priority: priority || "",
+            status: TASK_STATUS.PENDING,
+            actionType: "create"
+        }, {
+            method: "post",
+        });
+        onClose(); // Close the modal after creating
+    }
 
     const prioritiesMap = getPrioritiesMap();
 
@@ -57,7 +77,7 @@ export default function TaskModal({ task, opened, onClose }: {
 
                         <Grid.Col span={12}>
                             <Text><strong>Status:</strong></Text>
-                            <Text>{getStatusString(task.status)}</Text>
+                            <Text>{task && getStatusString(task.status)}</Text>
                         </Grid.Col>
 
                         <Grid.Col span={12}>
@@ -74,22 +94,22 @@ export default function TaskModal({ task, opened, onClose }: {
 
                         <Grid.Col span={12}>
                             <Text><strong>Created At:</strong></Text>
-                            <Text>{new Date(task.createdAt).toLocaleString()}</Text>
+                            <Text>{task && new Date(task.createdAt).toLocaleString()}</Text>
                         </Grid.Col>
 
                         <Grid.Col span={12}>
                             <Text><strong>Updated At:</strong></Text>
-                            <Text>{new Date(task.updatedAt).toLocaleString()}</Text>
+                            <Text>{task && new Date(task.updatedAt).toLocaleString()}</Text>
                         </Grid.Col>
 
                         <Grid.Col span={12}>
                             <Text><strong>Set to Doing/Done At:</strong></Text>
-                            <Text>{task.dateSetToDoingDone ? new Date(task.dateSetToDoingDone).toLocaleString() : 'N/A'}</Text>
+                            <Text>{task && task.dateSetToDoingDone ? new Date(task.dateSetToDoingDone).toLocaleString() : 'N/A'}</Text>
                         </Grid.Col>
 
                         <Grid.Col span={12}>
                             <Text><strong>Category:</strong></Text>
-                            <Text>{task.category ? task.category.title : 'N/A'}</Text>
+                            <Text>{task && task.category ? task.category.title : 'N/A'}</Text>
                         </Grid.Col>
 
                         <Grid.Col span={12} style={{ textAlign: 'center' }} >
@@ -98,7 +118,10 @@ export default function TaskModal({ task, opened, onClose }: {
                                 gap: "2vw",
                                 justifyContent: "center",
                             }}>
-                                <Button onClick={handleSave}>Save</Button>
+                                {isCreate ? 
+                                <Button onClick={handleCreate}>Create</Button>
+                                :
+                                <Button onClick={handleUpdate}>Save</Button>}
                                 {task?.status === TASK_STATUS.PENDING && <Button onClick={() => setConfirmDelete(true)} style={{
                                     backgroundColor: "red",
                                 }}>Delete</Button>}

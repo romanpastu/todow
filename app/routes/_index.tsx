@@ -6,6 +6,8 @@ import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
 import TaskList from "~/components/TaskList";
 import { TaskWithCategory } from "~/components/TaskITem";
+import TaskModal from "~/components/TaskModal";
+import { useDisclosure } from "@mantine/hooks";
 
 export const meta: MetaFunction = () => {
   return [
@@ -43,7 +45,7 @@ const convertTaskDates = (task: TaskWithCategoryJson): TaskWithCategory => {
   };
 };
 export const loader = async () => {
-  const pendingTasks = await db.task.findMany({ where: { status: TASK_STATUS.PENDING }, include: { category: true }, });
+  const pendingTasks = await db.task.findMany({ where: { status: TASK_STATUS.PENDING }, include: { category: true }, orderBy: { priority: 'asc' },  });
   const doingTasks = await db.task.findMany({ where: { status: TASK_STATUS.DOING }, include: { category: true }, });
   const doneTasks = await db.task.findMany({ where: { status: TASK_STATUS.DONE }, include: { category: true }, });
 
@@ -93,6 +95,23 @@ export const action = async ({ request }: { request: Request }) => {
     await db.task.delete({
       where: { id: +taskId },
     });
+  }else if (actionType === "create") {
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const priority = parseInt(formData.get("priority") as string);
+
+    await db.task.create({
+      data: {
+        title,
+        description,
+        priority,
+        status: TASK_STATUS.PENDING,
+        //TO-DO: get the user from the session
+        user: { connect: { id: 1 } },
+      },
+    });
+
+    return json({ success: true });
   }
 
   return json({ success: true });
@@ -114,6 +133,7 @@ export default function Index() {
   const filteredPendingTasks = pendingTasks.filter((task) =>
     task.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const [opened, { open, close }] = useDisclosure(false);
 
   return (
     <Box
@@ -125,6 +145,7 @@ export default function Index() {
         padding: "20px",
       }}
     >
+      <TaskModal task={null} opened={opened} onClose={close} isCreate={true} />
       <Box
         style={{
           border: "1px solid #000",
@@ -162,12 +183,15 @@ export default function Index() {
               marginBottom: "8px",
             }}
           >
-            <Button>Create new Task</Button>
+            <Button onClick={() => {
+              open();
+            }}>Create new Task</Button>
             <Input
               placeholder="Search task"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.currentTarget.value)}
             />
+            <Button>GoTo Completed Tasks</Button>
           </Box>
           <TaskList tasks={filteredPendingTasks} />
         </Box>

@@ -1,4 +1,4 @@
-import { Box, ScrollArea, Button, Input } from "@mantine/core";
+import { Box, ScrollArea, Button, Input, Text } from "@mantine/core";
 import { useState } from "react";
 import { json, type MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
@@ -37,22 +37,24 @@ export const convertTaskDates = (task: TaskWithCategoryJson): TaskWithCategory =
     dateSetToDoingDone: task?.dateSetToDoingDone ? new Date(task.dateSetToDoingDone) : null,
     category: task.category
       ? {
-          ...task.category,
-          createdAt: new Date(task.category.createdAt),
-          updatedAt: new Date(task.category.updatedAt),
-        }
+        ...task.category,
+        createdAt: new Date(task.category.createdAt),
+        updatedAt: new Date(task.category.updatedAt),
+      }
       : undefined,
   };
 };
 export const loader = async () => {
-  const pendingTasks = await db.task.findMany({ where: { status: TASK_STATUS.PENDING }, include: { category: true }, orderBy: { priority: 'asc' },  });
+  const pendingTasks = await db.task.findMany({ where: { status: TASK_STATUS.PENDING }, include: { category: true }, orderBy: { priority: 'asc' }, });
   const doingTasks = await db.task.findMany({ where: { status: TASK_STATUS.DOING }, include: { category: true }, });
   const doneTasks = await db.task.findMany({ where: { status: TASK_STATUS.DONE }, include: { category: true }, });
+  const categories = await db.category.findMany();
 
   return json({
     pendingTasks,
     doingTasks,
     doneTasks,
+    categories,
   });
 };
 
@@ -76,7 +78,7 @@ export const action = async ({ request }: { request: Request }) => {
       where: { id: +taskId },
       data: { status: TASK_STATUS.DONE },
     });
-  }else if (actionType === "update") {
+  } else if (actionType === "update") {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
     const priority = parseInt(formData.get("priority") as string);
@@ -91,11 +93,11 @@ export const action = async ({ request }: { request: Request }) => {
     });
 
     return json({ success: true });
-  }else if(actionType === "delete") {
+  } else if (actionType === "delete") {
     await db.task.delete({
       where: { id: +taskId },
     });
-  }else if (actionType === "create") {
+  } else if (actionType === "create") {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
     const priority = parseInt(formData.get("priority") as string);
@@ -122,12 +124,13 @@ export default function Index() {
     pendingTasks: TaskWithCategoryJson[];
     doingTasks: TaskWithCategoryJson[];
     doneTasks: TaskWithCategoryJson[];
+    categories: { id: number; title: string }[];
   }>();
 
   const doingTasks = data.doingTasks.map(convertTaskDates);
   const doneTasks = data.doneTasks.map(convertTaskDates);
   const pendingTasks = data.pendingTasks.map(convertTaskDates);
-
+  const categories = data.categories;
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredPendingTasks = pendingTasks.filter((task) =>
@@ -135,67 +138,97 @@ export default function Index() {
   );
   const [opened, { open, close }] = useDisclosure(false);
   const navigate = useNavigate();
+  
   return (
     <Box
       style={{
         display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        height: "100vh",
-        padding: "20px",
+        flexDirection: "row",
       }}
     >
-      <TaskModal task={null} opened={opened} onClose={close} isCreate={true} />
-      <Box
-        style={{
-          border: "1px solid #000",
-          width: "70vw",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "column",
-          padding: "16px",
-        }}
-      >
-        <TaskList tasks={[...doingTasks, ...doneTasks]} />
+      <Box style={{
+        height: "100vh",
+        width: "15vw",
+        backgroundColor: "rgba(0,0,0,0.1)",
+        paddingLeft: "16px",
+      }}>
+        <Text size="20px" style={{
+          marginBottom: "16px",
+          marginTop: "16px"
+        }}>Categories</Text>
+        <Box>
+          {categories.map((category) => (
+            <Box key={category.id} onClick={() => navigate(`/category/${category.id}`)} style={{
+              cursor: "pointer",
+              padding: "8px",
+              backgroundColor: "rgba(0,0,0,0.2)",
+              marginBottom: "8px"
+            }}>
+              <Text>{category.title}</Text>
+            </Box>
+          ))}
+        </Box>
       </Box>
-
-      <ScrollArea
-        style={{
-          width: "70vw",
-          flex: 1,
-          marginTop: "16px",
-        }}
-      >
+      <TaskModal task={null} opened={opened} onClose={close} isCreate={true} />
+      <Box>
         <Box
           style={{
-            alignItems: "center",
+            border: "1px solid #000",
+            width: "70vw",
             display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             flexDirection: "column",
+            padding: "16px",
+          }}
+        >
+          <TaskList tasks={[...doingTasks, ...doneTasks]} />
+        </Box>
+
+        <ScrollArea
+          style={{
+            width: "70vw",
+            flex: 1,
+            marginTop: "16px",
           }}
         >
           <Box
             style={{
-              display: "flex",
-              flexDirection: "row",
-              gap: "8px",
               alignItems: "center",
-              marginBottom: "8px",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            <Button onClick={() => {
-              open();
-            }}>Create new Task</Button>
-            <Input
-              placeholder="Search task"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.currentTarget.value)}
-            />
-           <Button onClick={() => navigate('/completed')}>GoTo Completed Tasks</Button>
+            <Box
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "8px",
+                alignItems: "center",
+                marginBottom: "8px",
+              }}
+            >
+              <Button onClick={() => {
+                open();
+              }}>Create new Task</Button>
+              <Input
+                placeholder="Search task"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.currentTarget.value)}
+              />
+              <Button onClick={() => navigate('/completed')}>GoTo Completed Tasks</Button>
+            </Box>
+            <TaskList tasks={filteredPendingTasks} />
           </Box>
-          <TaskList tasks={filteredPendingTasks} />
-        </Box>
-      </ScrollArea>
+        </ScrollArea>
+      </Box>
+      <Box style={{
+        height: "100px",
+        width: "15vw",
+
+      }}>
+
+      </Box>
     </Box>
   );
 }

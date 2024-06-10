@@ -132,13 +132,12 @@ export default function Index() {
   const pendingTasks = data.pendingTasks.map(convertTaskDates);
   const categories = data.categories;
   const [searchQuery, setSearchQuery] = useState("");
-
   const filteredPendingTasks = pendingTasks.filter((task) =>
     task.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
   const [opened, { open, close }] = useDisclosure(false);
   const navigate = useNavigate();
-  
+
   return (
     <Box
       style={{
@@ -156,7 +155,7 @@ export default function Index() {
           marginBottom: "16px",
           marginTop: "16px"
         }}>Categories</Text>
-        <Box>
+        <ScrollArea>
           {categories.map((category) => (
             <Box key={category.id} onClick={() => navigate(`/category/${category.id}`)} style={{
               cursor: "pointer",
@@ -164,10 +163,13 @@ export default function Index() {
               backgroundColor: "rgba(0,0,0,0.2)",
               marginBottom: "8px"
             }}>
-              <Text>{category.title}</Text>
+              <Text>{category.title} - ({
+                [...doingTasks, ...doneTasks, ...pendingTasks].filter(task => task.category?.id === category.id)?.length
+              })
+              </Text>
             </Box>
           ))}
-        </Box>
+        </ScrollArea>
       </Box>
       <TaskModal task={null} opened={opened} onClose={close} isCreate={true} />
       <Box>

@@ -6,69 +6,47 @@ import { useState } from "react";
 import TaskList from "~/components/TaskList";
 import { TASK_STATUS } from "~/constants/tasks";
 import { Category } from "@prisma/client";
-
+import styles from "~/styles/page-list.module.css";
 
 export const loader = async ({ params }: {
-    params: {
-        categoryId: string;
-    }
-
+  params: {
+    categoryId: string;
+  }
 }) => {
-    const { categoryId } = params;
-    const tasksFromCategory = await db.task.findMany({
-        where: {
-            categoryId: +categoryId,
-            status: { not: TASK_STATUS.FINISHED }
-        },
-        include: { category: true }
-    });
-    const category = await db.category.findUnique({ where: { id: +categoryId } });
-    return json({ tasks: tasksFromCategory, category });
+  const { categoryId } = params;
+  const tasksFromCategory = await db.task.findMany({
+    where: {
+      categoryId: +categoryId,
+      status: { not: TASK_STATUS.FINISHED }
+    },
+    include: { category: true }
+  });
+  const category = await db.category.findUnique({ where: { id: +categoryId } });
+  return json({ tasks: tasksFromCategory, category });
 };
 
 export default function CategoryRoute() {
-    const data = useLoaderData<{ tasks: TaskWithCategoryJson[], category: Category }>();
-    const categoryTasks = data.tasks.map(convertTaskDates);
-    const category = data.category;
-    const [searchQuery, setSearchQuery] = useState("");
-    const filteredcategoryTasks = categoryTasks.filter((task) =>
-        task.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    const navigate = useNavigate();
-    return (
+  const data = useLoaderData<{ tasks: TaskWithCategoryJson[], category: Category }>();
+  const categoryTasks = data.tasks.map(convertTaskDates);
+  const category = data.category;
+  const [searchQuery, setSearchQuery] = useState("");
+  const filteredcategoryTasks = categoryTasks.filter((task) =>
+    task.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const navigate = useNavigate();
 
-
-        <Box style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            height: '100vh',
-            width: '100vw'
-
-        }}>
-            <Text size="50px" style={{
-                marginBottom: '20px'
-            }}>Tasks for categoryId: {category?.title}</Text>
-            <Box style={{
-                display: 'flex',
-                flexDirection: 'row',
-                gap: '20px',
-                justifyContent: 'center',
-                width: '65vw'
-            }}>
-
-                <Input
-                    placeholder="Search task"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.currentTarget.value)}
-                    style={{
-                        marginBottom: '20px'
-                    }}
-                />
-                <Button onClick={() => navigate("/")}>Go back</Button>
-            </Box>
-
-            <TaskList tasks={filteredcategoryTasks} />
-        </Box>
-    );
+  return (
+    <Box className={styles.container}>
+      <Text size="50px" className={styles.header}>Tasks for categoryId: {category?.title}</Text>
+      <Box className={styles.searchContainer}>
+        <Input
+          placeholder="Search task"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.currentTarget.value)}
+        />
+        <Button onClick={() => navigate("/")}>Go back</Button>
+      </Box>
+      <TaskList tasks={filteredcategoryTasks} />
+    </Box>
+  );
 }

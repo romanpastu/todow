@@ -177,19 +177,21 @@ export default function Index() {
       </Box>
       <TaskModal task={null} opened={opened} onClose={close} isCreate={true} />
       <Box>
-        <Box
+        <ScrollArea
           style={{
             border: "1px solid #000",
             width: "70vw",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexDirection: "column",
             height: "20vh"
           }}
         >
-          <TaskList tasks={[...doingTasks, ...doneTasks]} />
-        </Box>
+          <Box style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}>
+            <TaskList tasks={[...doingTasks, ...doneTasks]} />
+          </Box>
+        </ScrollArea>
         <Box style={{
           width: "70vw",
           display: "flex",
@@ -234,7 +236,7 @@ export default function Index() {
               flexDirection: "column",
             }}
           >
-            <TaskList tasks={[...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks,]} />
+            <TaskList tasks={filteredPendingTasks} />
           </Box>
         </ScrollArea>
       </Box>

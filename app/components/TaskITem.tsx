@@ -55,18 +55,18 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }: {
           width: "65vw",
           marginTop: "4px",
           marginBottom: "4px",
-          cursor: "pointer",
+
           backgroundColor
         }}
-        onClick={() => {
-          open();
-        }}
+
       >
 
-        <Text>{task.title}</Text>
-        
+        <Text style={{ cursor: "pointer" }} onClick={() => {
+          open();
+        }}>{task.title}</Text>
+
         <Box style={{ display: "flex", gap: "8px" }}>
-        {task.status === TASK_STATUS.PENDING && <Text color="red" size="15px">P{task?.priority}</Text>}
+          {task.status === TASK_STATUS.PENDING && <Text color="red" size="15px">P{task?.priority}</Text>}
           {task.status === TASK_STATUS.DOING && (
             <Box style={{
               display: "flex",

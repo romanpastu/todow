@@ -154,8 +154,12 @@ export default function Index() {
         <Text size="20px" style={{
           marginBottom: "16px",
           marginTop: "16px"
-        }}>Categories</Text>
-        <ScrollArea>
+        }}>
+          Categories
+        </Text>
+        <ScrollArea style={{
+          height: "calc(100vh - 32px)",
+        }}>
           {categories.map((category) => (
             <Box key={category.id} onClick={() => navigate(`/category/${category.id}`)} style={{
               cursor: "pointer",
@@ -181,17 +185,46 @@ export default function Index() {
             alignItems: "center",
             justifyContent: "center",
             flexDirection: "column",
-            padding: "16px",
+            height: "20vh"
           }}
         >
           <TaskList tasks={[...doingTasks, ...doneTasks]} />
+        </Box>
+        <Box style={{
+          width: "70vw",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "5vh"
+        }}>
+          <Box
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: "8px",
+              alignItems: "center",
+            }}
+          >
+            <Button onClick={() => {
+              open();
+            }}>
+              Create new Task
+            </Button>
+            <Input
+              placeholder="Search task"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.currentTarget.value)}
+            />
+            <Button onClick={() => navigate('/completed')}>GoTo Completed Tasks</Button>
+          </Box>
         </Box>
 
         <ScrollArea
           style={{
             width: "70vw",
             flex: 1,
-            marginTop: "16px",
+            height: "75vh"
           }}
         >
           <Box
@@ -201,26 +234,7 @@ export default function Index() {
               flexDirection: "column",
             }}
           >
-            <Box
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                gap: "8px",
-                alignItems: "center",
-                marginBottom: "8px",
-              }}
-            >
-              <Button onClick={() => {
-                open();
-              }}>Create new Task</Button>
-              <Input
-                placeholder="Search task"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.currentTarget.value)}
-              />
-              <Button onClick={() => navigate('/completed')}>GoTo Completed Tasks</Button>
-            </Box>
-            <TaskList tasks={filteredPendingTasks} />
+            <TaskList tasks={[...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks, ...filteredPendingTasks,]} />
           </Box>
         </ScrollArea>
       </Box>

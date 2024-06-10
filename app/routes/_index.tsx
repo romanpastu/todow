@@ -5,17 +5,18 @@ import { useLoaderData } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
 import TaskList from "~/components/TaskList";
-import { TaskWithCategory } from "~/components/TaskITem";
 import TaskModal from "~/components/TaskModal";
 import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
+import styles from "~/styles/index.module.css"; // Import the CSS module
+import { TaskWithCategory } from "~/components/TaskITem";
+
 export const meta: MetaFunction = () => {
   return [
     { title: "New Remix App" },
     { name: "description", content: "Welcome to Remix!" },
   ];
 };
-
 
 export type TaskWithCategoryJson = Omit<TaskWithCategory, "createdAt" | "updatedAt" | "dateSetToDoingDone" | "category"> & {
   createdAt: string;
@@ -44,6 +45,7 @@ export const convertTaskDates = (task: TaskWithCategoryJson): TaskWithCategory =
       : undefined,
   };
 };
+
 export const loader = async () => {
   const pendingTasks = await db.task.findMany({ where: { status: TASK_STATUS.PENDING }, include: { category: true }, orderBy: { priority: 'asc' }, });
   const doingTasks = await db.task.findMany({ where: { status: TASK_STATUS.DOING }, include: { category: true }, });
@@ -139,80 +141,33 @@ export default function Index() {
   const navigate = useNavigate();
 
   return (
-    <Box
-      style={{
-        display: "flex",
-        flexDirection: "row",
-      }}
-    >
-      <Box style={{
-        height: "100vh",
-        width: "15vw",
-        backgroundColor: "rgba(0,0,0,0.1)",
-        paddingLeft: "16px",
-      }}>
-        <Text size="20px" style={{
-          marginBottom: "16px",
-          marginTop: "16px"
-        }}>
-          Categories
-        </Text>
-        <ScrollArea style={{
-          height: "calc(100vh - 100px)",
-        }}>
+    <Box className={styles.container}>
+      <Box className={styles.sidebar}>
+        <Text size="20px" className={styles.sidebarTitle}>Categories</Text>
+        <ScrollArea className={styles.categoryList}>
           {categories.map((category) => (
-            <Box key={category.id} onClick={() => navigate(`/category/${category.id}`)} style={{
-              cursor: "pointer",
-              padding: "8px",
-              backgroundColor: "rgba(0,0,0,0.2)",
-              marginBottom: "8px"
-            }}>
+            <Box
+              key={category.id}
+              onClick={() => navigate(`/category/${category.id}`)}
+              className={styles.categoryItem}
+            >
               <Text>{category.title} - ({
                 [...doingTasks, ...doneTasks, ...pendingTasks].filter(task => task.category?.id === category.id)?.length
-              })
-              </Text>
+              })</Text>
             </Box>
           ))}
         </ScrollArea>
       </Box>
       <TaskModal task={null} opened={opened} onClose={close} isCreate={true} />
-      <Box>
-        <ScrollArea
-          style={{
-            border: "1px solid #000",
-            width: "70vw",
-            height: "20vh"
-          }}
-        >
-          <Box style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}>
+      <Box className={styles.main}>
+        <ScrollArea className={styles.doingDoneTasks}>
+          <Box className={styles.taskListContainer}>
             <TaskList tasks={[...doingTasks, ...doneTasks]} />
           </Box>
         </ScrollArea>
-        <Box style={{
-          width: "70vw",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "5vh"
-        }}>
-          <Box
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              gap: "8px",
-              alignItems: "center",
-            }}
-          >
-            <Button onClick={() => {
-              open();
-            }}>
-              Create new Task
-            </Button>
+        <Box className={styles.controls}>
+          <Box className={styles.controlGroup}>
+            <Button onClick={open}>Create new Task</Button>
             <Input
               placeholder="Search task"
               value={searchQuery}
@@ -221,32 +176,13 @@ export default function Index() {
             <Button onClick={() => navigate('/completed')}>GoTo Completed Tasks</Button>
           </Box>
         </Box>
-
-        <ScrollArea
-          style={{
-            width: "70vw",
-            flex: 1,
-            height: "75vh"
-          }}
-        >
-          <Box
-            style={{
-              alignItems: "center",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
+        <ScrollArea className={styles.pendingTasks}>
+          <Box className={styles.taskListContainer}>
             <TaskList tasks={filteredPendingTasks} />
           </Box>
         </ScrollArea>
       </Box>
-      <Box style={{
-        height: "100px",
-        width: "15vw",
-
-      }}>
-
-      </Box>
+      <Box className={styles.rightSpace}></Box>
     </Box>
   );
 }

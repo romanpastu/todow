@@ -158,7 +158,7 @@ export default function Index() {
           Categories
         </Text>
         <ScrollArea style={{
-          height: "calc(100vh - 32px)",
+          height: "calc(100vh - 100px)",
         }}>
           {categories.map((category) => (
             <Box key={category.id} onClick={() => navigate(`/category/${category.id}`)} style={{

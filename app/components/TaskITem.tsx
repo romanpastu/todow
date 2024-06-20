@@ -14,6 +14,7 @@ export type TaskWithCategory = Task & {
 };
 interface TaskItemProps {
   task: TaskWithCategory;
+  categories: { id: number; title: string }[];
 }
 const getBackGroundColor = (status: number) => {
   switch (status) {
@@ -30,8 +31,9 @@ const getBackGroundColor = (status: number) => {
   }
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task }: {
+const TaskItem: React.FC<TaskItemProps> = ({ task, categories }: {
   task: TaskWithCategory;
+  categories: { id: number; title: string }[];
 }) => {
   const fetcher = useFetcher();
   const backgroundColor = getBackGroundColor(task.status);
@@ -43,6 +45,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }: {
         task={task}
         opened={opened}
         onClose={close}
+        categories={categories}
       />
       <Box
         key={task.id}

@@ -66,13 +66,14 @@ export const action = async ({ request }: { request: Request }) => {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
     const priority = parseInt(formData.get("priority") as string);
-
+    const categoryId = parseInt(formData.get("categoryId") as string);
     await db.task.update({
       where: { id: +taskId },
       data: {
         title,
         description,
         priority,
+        category: { connect: { id: categoryId } },
       },
     });
 
@@ -171,12 +172,12 @@ export default function Index() {
           ))}
         </ScrollArea>
       </Box>
-      <TaskModal task={null} opened={opened} onClose={close} isCreate={true} />
+      <TaskModal task={null} opened={opened} onClose={close} isCreate={true}  categories={categories}/>
       <CreateEditCategoryModal opened={categoryModalOpened} onClose={categoryModalClose} mode={"create"}/>
       <Box className={styles.main}>
         <ScrollArea className={styles.doingDoneTasks}>
           <Box className={styles.taskListContainer}>
-            <TaskList tasks={[...doingTasks, ...doneTasks]} />
+            <TaskList tasks={[...doingTasks, ...doneTasks]} categories={categories}/>
           </Box>
         </ScrollArea>
         <Box className={styles.controls}>
@@ -192,7 +193,7 @@ export default function Index() {
         </Box>
         <ScrollArea className={styles.pendingTasks}>
           <Box className={styles.taskListContainer}>
-            <TaskList tasks={filteredPendingTasks} />
+            <TaskList tasks={filteredPendingTasks} categories={categories}/>
           </Box>
         </ScrollArea>
       </Box>

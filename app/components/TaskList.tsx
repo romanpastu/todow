@@ -4,10 +4,12 @@ import TaskItem, { TaskWithCategory } from "./TaskITem";
 
 interface TaskListProps {
   tasks: TaskWithCategory[];
+  categories: { id: number; title: string }[];
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks } : {
+const TaskList: React.FC<TaskListProps> = ({ tasks, categories } : {
     tasks: TaskWithCategory[];
+    categories: { id: number; title: string }[];
 }) => {
   return tasks.length === 0 ? (
     <Box
@@ -23,7 +25,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks } : {
       <Text>Weekly tasks</Text>
     </Box>
   ) : (
-    tasks.map((task) => <TaskItem key={task.id} task={task} />)
+    tasks.map((task) => <TaskItem key={task.id} task={task} categories={categories}/>)
   );
 };
 

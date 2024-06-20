@@ -8,6 +8,9 @@ import { TASK_STATUS } from "~/constants/tasks";
 import { Category } from "@prisma/client";
 import styles from "~/styles/page-list.module.css";
 import { convertTaskDates } from "~/utils/helpers";
+import { IconPencil } from "@tabler/icons-react";
+import CreateEditCategoryModal from "~/components/CreateEditCategoryModal";
+import { useDisclosure } from "@mantine/hooks";
 
 export const loader = async ({ params }: {
   params: {
@@ -26,11 +29,29 @@ export const loader = async ({ params }: {
   return json({ tasks: tasksFromCategory, category });
 };
 
-export const action = async ({ request }: { request: Request }) => {
+export const action = async ({ request, params }: { request: Request, params : {
+  categoryId: string;
+} }) => {
+  console.log("GLOBAL")
   const formData = await request.formData();
+  const actionType = formData.get("actionType") as string;
   const categoryId = formData.get("categoryId") as string;
-  await db.category.delete({ where: { id: +categoryId } });
-  return redirect("/");
+  if (actionType === "deleteCategory") {
+    await db.category.delete({ where: { id: +categoryId } });
+    return redirect("/");
+  }else if(actionType === "editCategory") {
+    
+    const title = formData.get("title") as string;
+    const { categoryId } = params;
+    await db.category.update({
+      where: { id: +categoryId },
+      data: {
+        title,
+      },
+    });
+
+    return json({ success: true });
+  }
 }
 
 export default function CategoryRoute() {
@@ -43,11 +64,28 @@ export default function CategoryRoute() {
   );
   const navigate = useNavigate();
   const fetcher = useFetcher();
-
+  const [categoryModalOpened, { open: categoryModalOpen, close: categoryModalClose }] = useDisclosure(false);
 
   return (
     <Box className={styles.container}>
-      <Text size="50px" className={styles.header}>Tasks for category: {category?.title}</Text>
+      <CreateEditCategoryModal opened={categoryModalOpened} onClose={categoryModalClose} mode={"edit"} currentTitle={
+        category?.title
+      }
+      />
+      <Box style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: "10px",
+      }}>
+        <Text size="50px" className={styles.header}>Tasks for category: {category?.title}</Text>
+        <IconPencil size="30px" className={styles.header} style={{
+          cursor: "pointer",
+        }}
+          onClick={categoryModalOpen}
+        />
+      </Box>
+
       <Box className={styles.searchContainer}>
         <Input
           placeholder="Search task"
@@ -57,6 +95,7 @@ export default function CategoryRoute() {
         <Button onClick={() => navigate("/")}>Go back</Button>
         <fetcher.Form method="post">
           <input type="hidden" name="categoryId" value={category.id} />
+          <input type="hidden" name="actionType" value="deleteCategory" />
           <Button color="red" type="submit">Delete Category</Button>
         </fetcher.Form>
       </Box>

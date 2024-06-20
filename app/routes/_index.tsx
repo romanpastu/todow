@@ -12,7 +12,7 @@ import styles from "~/styles/index.module.css"; // Import the CSS module
 import { TaskWithCategory } from "~/components/TaskITem";
 import { convertTaskDates } from "~/utils/helpers";
 import { IconPlus } from "@tabler/icons-react";
-import CreateCategoryModal from "~/components/CreateCategoryModal";
+import CreateEditCategoryModal from "~/components/CreateEditCategoryModal";
 
 
 export type TaskWithCategoryJson = Omit<TaskWithCategory, "createdAt" | "updatedAt" | "dateSetToDoingDone" | "category"> & {
@@ -109,7 +109,7 @@ export const action = async ({ request }: { request: Request }) => {
     });
 
     return json({ success: true });
-  }
+  } 
 
   return json({ success: true });
 };
@@ -172,7 +172,7 @@ export default function Index() {
         </ScrollArea>
       </Box>
       <TaskModal task={null} opened={opened} onClose={close} isCreate={true} />
-      <CreateCategoryModal opened={categoryModalOpened} onClose={categoryModalClose}/>
+      <CreateEditCategoryModal opened={categoryModalOpened} onClose={categoryModalClose} mode={"create"}/>
       <Box className={styles.main}>
         <ScrollArea className={styles.doingDoneTasks}>
           <Box className={styles.taskListContainer}>

@@ -32,7 +32,6 @@ export const loader = async ({ params }: {
 export const action = async ({ request, params }: { request: Request, params : {
   categoryId: string;
 } }) => {
-  console.log("GLOBAL")
   const formData = await request.formData();
   const actionType = formData.get("actionType") as string;
   const categoryId = formData.get("categoryId") as string;

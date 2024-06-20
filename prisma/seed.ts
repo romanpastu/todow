@@ -13,7 +13,7 @@ async function seed() {
   );
 
   const categories = await Promise.all(
-    getCategory().map((category) => {
+    getCategory(users).map((category) => {
       return db.category.create({ data: category });
     })
   );
@@ -124,13 +124,15 @@ const getUsers = (): Omit<User, "id" | "createdAt" | "updatedAt">[] => {
   ];
 };
 
-const getCategory = (): Omit<Category, "id" | "createdAt" | "updatedAt">[] => {
+const getCategory = (users: User[]): Omit<Category, "id" | "createdAt" | "updatedAt">[] => {
   return [
     {
       title: "Category 1",
+      createdBy: users[0].id,
     },
     {
       title: "Category 2",
+      createdBy: users[0].id,
     },
   ];
 };

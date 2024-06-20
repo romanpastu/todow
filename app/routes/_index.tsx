@@ -1,6 +1,6 @@
 import { Box, ScrollArea, Button, Input, Text } from "@mantine/core";
 import { useState } from "react";
-import { json, type MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
@@ -10,13 +10,10 @@ import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import styles from "~/styles/index.module.css"; // Import the CSS module
 import { TaskWithCategory } from "~/components/TaskITem";
+import { convertTaskDates } from "~/utils/helpers";
+import { IconPlus } from "@tabler/icons-react";
+import CreateCategoryModal from "~/components/CreateCategoryModal";
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
-};
 
 export type TaskWithCategoryJson = Omit<TaskWithCategory, "createdAt" | "updatedAt" | "dateSetToDoingDone" | "category"> & {
   createdAt: string;
@@ -27,23 +24,8 @@ export type TaskWithCategoryJson = Omit<TaskWithCategory, "createdAt" | "updated
     title: string;
     createdAt: string;
     updatedAt: string;
+    createdBy: number;
   } | null;
-};
-
-export const convertTaskDates = (task: TaskWithCategoryJson): TaskWithCategory => {
-  return {
-    ...task,
-    createdAt: new Date(task.createdAt),
-    updatedAt: new Date(task.updatedAt),
-    dateSetToDoingDone: task?.dateSetToDoingDone ? new Date(task.dateSetToDoingDone) : null,
-    category: task.category
-      ? {
-        ...task.category,
-        createdAt: new Date(task.category.createdAt),
-        updatedAt: new Date(task.category.updatedAt),
-      }
-      : undefined,
-  };
 };
 
 export const loader = async () => {
@@ -116,6 +98,17 @@ export const action = async ({ request }: { request: Request }) => {
     });
 
     return json({ success: true });
+  } else if(actionType === "createCategory") {
+    const title = formData.get("title") as string;
+
+    await db.category.create({
+      data: {
+        title,
+        createdBy: 1,
+      },
+    });
+
+    return json({ success: true });
   }
 
   return json({ success: true });
@@ -134,18 +127,38 @@ export default function Index() {
   const pendingTasks = data.pendingTasks.map(convertTaskDates);
   const categories = data.categories;
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchQueryCategory, setSearchQueryCategory] = useState("");
   const filteredPendingTasks = pendingTasks.filter((task) =>
     task.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
   const [opened, { open, close }] = useDisclosure(false);
+  const [categoryModalOpened, { open: categoryModalOpen, close: categoryModalClose }] = useDisclosure(false);
   const navigate = useNavigate();
 
   return (
     <Box className={styles.container}>
       <Box className={styles.sidebar}>
-        <Text size="20px" className={styles.sidebarTitle}>Categories</Text>
+        <Box style={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '20px',
+          alignItems: 'center',
+        }}>
+          <Text size="15px" className={styles.sidebarTitle}>Categories</Text>
+          <Input
+            placeholder="Search category"
+            value={searchQueryCategory}
+            onChange={(e) => setSearchQueryCategory(e.currentTarget.value)}
+          />
+          <IconPlus size={20} style={{
+            cursor: 'pointer',
+          }} 
+          onClick={categoryModalOpen}
+          />
+          
+        </Box>
         <ScrollArea className={styles.categoryList}>
-          {categories.map((category) => (
+          {categories.filter((cat) => cat.title.toLocaleLowerCase().includes(searchQueryCategory.toLowerCase())).map((category) => (
             <Box
               key={category.id}
               onClick={() => navigate(`/category/${category.id}`)}
@@ -159,6 +172,7 @@ export default function Index() {
         </ScrollArea>
       </Box>
       <TaskModal task={null} opened={opened} onClose={close} isCreate={true} />
+      <CreateCategoryModal opened={categoryModalOpened} onClose={categoryModalClose}/>
       <Box className={styles.main}>
         <ScrollArea className={styles.doingDoneTasks}>
           <Box className={styles.taskListContainer}>

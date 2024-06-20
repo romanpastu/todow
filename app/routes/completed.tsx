@@ -2,10 +2,11 @@ import { json, useLoaderData, useNavigate } from "@remix-run/react";
 import TaskList from "~/components/TaskList";
 import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
-import { TaskWithCategoryJson, convertTaskDates } from "./_index";
+import { TaskWithCategoryJson } from "./_index";
 import { Box, Button, Input, Text } from "@mantine/core";
 import { useState } from "react";
 import styles from "~/styles/page-list.module.css";
+import { convertTaskDates } from "~/utils/helpers";
 
 export const loader = async () => {
   const completedTasks = await db.task.findMany({

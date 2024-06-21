@@ -6,6 +6,7 @@ export const convertTaskDates = (task: TaskWithCategoryJson): TaskWithCategory =
       ...task,
       createdAt: new Date(task.createdAt),
       updatedAt: new Date(task.updatedAt),
+      dueDate: task.dueDate ? new Date(task.dueDate) : null,
       dateSetToDoingDone: task?.dateSetToDoingDone ? new Date(task.dateSetToDoingDone) : null,
       category: task.category
         ? {

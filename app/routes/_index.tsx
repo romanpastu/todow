@@ -15,9 +15,10 @@ import { IconPlus } from "@tabler/icons-react";
 import CreateEditCategoryModal from "~/components/CreateEditCategoryModal";
 
 
-export type TaskWithCategoryJson = Omit<TaskWithCategory, "createdAt" | "updatedAt" | "dateSetToDoingDone" | "category"> & {
+export type TaskWithCategoryJson = Omit<TaskWithCategory, "createdAt" | "updatedAt" | "dateSetToDoingDone" | "dueDate" | "category"> & {
   createdAt: string;
   updatedAt: string;
+  dueDate: string | null;
   dateSetToDoingDone: string | null;
   category: {
     id: number;
@@ -29,7 +30,7 @@ export type TaskWithCategoryJson = Omit<TaskWithCategory, "createdAt" | "updated
 };
 
 export const loader = async () => {
-  const pendingTasks = await db.task.findMany({ where: { status: TASK_STATUS.PENDING }, include: { category: true }, orderBy: { priority: 'asc' }, });
+  const pendingTasks = await db.task.findMany({ where: { status: TASK_STATUS.PENDING }, include: { category: true } });
   const doingTasks = await db.task.findMany({ where: { status: TASK_STATUS.DOING }, include: { category: true }, });
   const doneTasks = await db.task.findMany({ where: { status: TASK_STATUS.DONE }, include: { category: true }, });
   const categories = await db.category.findMany();
@@ -46,7 +47,6 @@ export const action = async ({ request }: { request: Request }) => {
   const formData = await request.formData();
   const taskId = formData.get("taskId") as string;
   const actionType = formData.get("actionType") as string;
-
   if (actionType === "start" || actionType === "doing") {
     await db.task.update({
       where: { id: +taskId },
@@ -67,12 +67,15 @@ export const action = async ({ request }: { request: Request }) => {
     const description = formData.get("description") as string;
     const priority = parseInt(formData.get("priority") as string);
     const categoryId = parseInt(formData.get("categoryId") as string);
+    const dueDate = formData.get("dueDate") as string;
+
     await db.task.update({
       where: { id: +taskId },
       data: {
         title,
         description,
         priority,
+        dueDate: dueDate ? new Date(dueDate) : null,
         category: { connect: { id: categoryId } },
       },
     });
@@ -99,7 +102,7 @@ export const action = async ({ request }: { request: Request }) => {
     });
 
     return json({ success: true });
-  } else if(actionType === "createCategory") {
+  } else if (actionType === "createCategory") {
     const title = formData.get("title") as string;
 
     await db.category.create({
@@ -110,7 +113,7 @@ export const action = async ({ request }: { request: Request }) => {
     });
 
     return json({ success: true });
-  } 
+  }
 
   return json({ success: true });
 };
@@ -122,6 +125,7 @@ export default function Index() {
     doneTasks: TaskWithCategoryJson[];
     categories: { id: number; title: string }[];
   }>();
+  console.log(data.pendingTasks)
 
   const doingTasks = data.doingTasks.map(convertTaskDates);
   const doneTasks = data.doneTasks.map(convertTaskDates);
@@ -129,9 +133,17 @@ export default function Index() {
   const categories = data.categories;
   const [searchQuery, setSearchQuery] = useState("");
   const [searchQueryCategory, setSearchQueryCategory] = useState("");
+
   const filteredPendingTasks = pendingTasks.filter((task) =>
     task.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ).//sort by dueDate
+    sort((a, b) => {
+      if (a.dueDate && b.dueDate) {
+        return a.dueDate.getTime() - b.dueDate.getTime();
+      }
+      return 0;
+    });
+
   const [opened, { open, close }] = useDisclosure(false);
   const [categoryModalOpened, { open: categoryModalOpen, close: categoryModalClose }] = useDisclosure(false);
   const navigate = useNavigate();
@@ -153,10 +165,10 @@ export default function Index() {
           />
           <IconPlus size={20} style={{
             cursor: 'pointer',
-          }} 
-          onClick={categoryModalOpen}
+          }}
+            onClick={categoryModalOpen}
           />
-          
+
         </Box>
         <ScrollArea className={styles.categoryList}>
           {categories.filter((cat) => cat.title.toLocaleLowerCase().includes(searchQueryCategory.toLowerCase())).map((category) => (
@@ -172,12 +184,12 @@ export default function Index() {
           ))}
         </ScrollArea>
       </Box>
-      <TaskModal task={null} opened={opened} onClose={close} isCreate={true}  categories={categories}/>
-      <CreateEditCategoryModal opened={categoryModalOpened} onClose={categoryModalClose} mode={"create"}/>
+      <TaskModal task={null} opened={opened} onClose={close} isCreate={true} categories={categories} />
+      <CreateEditCategoryModal opened={categoryModalOpened} onClose={categoryModalClose} mode={"create"} />
       <Box className={styles.main}>
         <ScrollArea className={styles.doingDoneTasks}>
           <Box className={styles.taskListContainer}>
-            <TaskList tasks={[...doingTasks, ...doneTasks]} categories={categories}/>
+            <TaskList tasks={[...doingTasks, ...doneTasks]} categories={categories} />
           </Box>
         </ScrollArea>
         <Box className={styles.controls}>
@@ -193,7 +205,7 @@ export default function Index() {
         </Box>
         <ScrollArea className={styles.pendingTasks}>
           <Box className={styles.taskListContainer}>
-            <TaskList tasks={filteredPendingTasks} categories={categories}/>
+            <TaskList tasks={filteredPendingTasks} categories={categories} />
           </Box>
         </ScrollArea>
       </Box>

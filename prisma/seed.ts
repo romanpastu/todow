@@ -35,6 +35,7 @@ function getTasks(users: User[], categories: Category[]) {
       priority: 1,
       categoryId: categories[0].id,
       status: 1,
+      dueDate: new Date("2025-10-10T00:00:00.000Z")
     },
     {
       title: "Task 2",

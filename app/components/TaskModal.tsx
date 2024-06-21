@@ -1,9 +1,9 @@
-import { Box, Button, Grid, Modal, Select, Text, TextInput, Textarea } from "@mantine/core";
+import { Box, Button, Grid, Input, Modal, Select, Text, TextInput, Textarea } from "@mantine/core";
 import { TASK_STATUS, getPrioritiesMap, getStatusString } from "~/constants/tasks";
 import { TaskWithCategory } from "./TaskITem";
 import { useState, useEffect } from "react";
 import { useFetcher } from "@remix-run/react";
-
+import moment from "moment";
 export default function TaskModal({ task, opened, onClose, isCreate, categories }: {
   task: TaskWithCategory | null;
   opened: boolean;
@@ -16,25 +16,30 @@ export default function TaskModal({ task, opened, onClose, isCreate, categories 
   const [priority, setPriority] = useState(task?.priority?.toString());
   const [category, setCategory] = useState(task?.category?.id.toString() || "");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [dueDate, setDueDate] = useState(moment(task?.dueDate).format("DD-MM-YYYY") || "");
   const fetcher = useFetcher();
-
+  
   useEffect(() => {
     if (opened) {
       setTitle(task?.title || "");
       setDescription(task?.description || "");
       setPriority(task?.priority?.toString());
       setCategory(task?.category?.id.toString() || "");
+      setDueDate(moment(task?.dueDate).format("DD-MM-YYYY") || "");
     }
   }, [task, opened]);
 
   const handleUpdate = () => {
+    
     if (task) {
+      console.log(dueDate, moment(dueDate).isValid());
       fetcher.submit({
         taskId: task.id.toString(),
         title,
         description,
         priority: priority || "",
         categoryId: +category || "",
+        dueDate: moment(dueDate, "DD-MM-YYYY").isValid() ? moment(dueDate, "DD-MM-YYYY").format("YYYY-MM-DD") : null,
         actionType: "update"
       }, {
         method: "put",
@@ -114,9 +119,22 @@ export default function TaskModal({ task, opened, onClose, isCreate, categories 
             </Grid.Col>
 
             <Grid.Col span={12}>
-              <Text><strong>Set to Doing/Done At:</strong></Text>
-              <Text>{task && task.dateSetToDoingDone ? new Date(task.dateSetToDoingDone).toLocaleString() : 'N/A'}</Text>
+              <Text><strong>Due Date:</strong></Text>
+              <Input
+                value={dueDate}
+                onChange={(e) => {
+                  setDueDate(e.currentTarget.value);
+                }}
+                placeholder="DD-MM-YYYY"
+                title="Enter a date in this format DD-MM-YYYY"
+                
+              />
             </Grid.Col>
+
+            {/* <Grid.Col span={12}>
+              <Text><strong>Set to Doing/Done At:</strong></Text>
+              <Text>{task && task.dateSetToDoingDone ? task.dateSetToDoingDone : 'N/A'}</Text>
+            </Grid.Col> */}
 
             <Grid.Col span={12}>
               <Text><strong>Category:</strong></Text>

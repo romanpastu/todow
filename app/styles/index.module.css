@@ -21,14 +21,11 @@
 }
 
 .categoryUtils {
-
-  display: 'flex';
-  flex-direction: 'row';
-  gap: '20px';
-  align-items: 'center';
-
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: center;
 }
-
 .categoryItem {
   cursor: pointer;
   padding: 8px;

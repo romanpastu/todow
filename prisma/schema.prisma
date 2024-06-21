@@ -11,20 +11,20 @@ datasource db {
 }
 
 model Task {
-  id         Int       @id @default(autoincrement())
-  title      String
+  id                 Int       @id @default(autoincrement())
+  title              String
   //status: 1 - pending, 2 - doing, 3 - done, 4 - finished, 5 - archived
   //finished = done + week passed
-  status     Int   @default(1)
-  createdAt  DateTime  @default(now())
-  createdBy  Int       // Foreign key field for user
-  updatedAt  DateTime  @updatedAt
-  dueDate    DateTime?
-  user       User      @relation(fields: [createdBy], references: [id])
-  priority   Int       @default(1)
-  categoryId Int?      // Foreign key field for category
-  category   Category? @relation(fields: [categoryId], references: [id]) // Make relation optional
-  description String?
+  status             Int       @default(1)
+  createdAt          DateTime  @default(now())
+  createdBy          Int // Foreign key field for user
+  updatedAt          DateTime  @updatedAt
+  dueDate            DateTime?
+  user               User      @relation(fields: [createdBy], references: [id])
+  priority           Int       @default(1)
+  categoryId         Int? // Foreign key field for category
+  category           Category? @relation(fields: [categoryId], references: [id]) // Make relation optional
+  description        String?
   dateSetToDoingDone DateTime?
 
   @@index([createdBy]) // Optional: creates an index on the foreign key field for performance
@@ -32,13 +32,14 @@ model Task {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tasks     Task[]   // One-to-many relation with Task
+  id         Int        @id @default(autoincrement())
+  email      String     @unique
+  name       String?
+  password   String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  tasks      Task[] // One-to-many relation with Task
+  categories Category[] // One-to-many relation with Category
 }
 
 //epics
@@ -47,6 +48,7 @@ model Category {
   title     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  tasks     Task[]   // One-to-many relation with Task
-  createdBy  Int       // Foreign key field for user
+  tasks     Task[] // One-to-many relation with Task
+  createdBy Int // Foreign key field for user
+  user      User?    @relation(fields: [createdBy], references: [id])
 }

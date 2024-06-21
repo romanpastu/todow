@@ -9,16 +9,22 @@ export const loader: LoaderFunction = async ({ request }) => {
     const url = new URL(request.url);
     const secretKey = url.searchParams.get("secret");
 
-    if (secretKey !== process.env.SECRET_KEY) {
+    if (secretKey !== process.env.PROCESS_TASKS_SECRET) {
         return new Response("Unauthorized", { status: 401 });
     }
+    let doneTasks
+    try {
+        doneTasks = await db.task.findMany({
+            where: { status: TASK_STATUS.DONE },
+            include: { category: true },
+        });
+    } catch (err) {
+        console.error(err);
+        return new Response("An error occurred", { status: 500 });
+    }
 
-    const doneTasks = await db.task.findMany({
-        where: { status: TASK_STATUS.DONE },
-        include: { category: true },
-    });
-    const errTasks = [];
-    const successTasks = [];
+    const errTasks: Task[] = [];
+    const successTasks: Task[]= [];
     for (const task of doneTasks) {
         try {
             await setTaskToFinished(task);

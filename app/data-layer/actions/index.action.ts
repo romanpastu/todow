@@ -1,4 +1,5 @@
 import { json } from "@remix-run/react";
+import moment from "moment";
 import { INDEX_ACTIONS } from "~/constants/loader-actions/index-actions";
 import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
@@ -30,14 +31,13 @@ export const action = async ({ request }: { request: Request }) => {
       const priority = parseInt(formData.get("priority") as string);
       const categoryId = parseInt(formData.get("categoryId") as string);
       const dueDate = formData.get("dueDate") as string;
-
       await db.task.update({
         where: { id: +taskId },
         data: {
           title,
           description,
           priority,
-          dueDate: dueDate ? new Date(dueDate) : null,
+          dueDate: moment(dueDate, "DD-MM-YYYY").isValid() ? moment(dueDate, "DD-MM-YYYY").format("YYYY-MM-DD") : null,
           category: { connect: { id: categoryId } },
         },
       });
@@ -51,26 +51,27 @@ export const action = async ({ request }: { request: Request }) => {
       const title = formData.get("title") as string;
       const description = formData.get("description") as string;
       const priority = parseInt(formData.get("priority") as string);
-
+      const categoryId = parseInt(formData.get("categoryId") as string);
+      const userId = 1; //TO-DO: get the user from the session
       await db.task.create({
         data: {
           title,
           description,
           priority,
           status: TASK_STATUS.PENDING,
-          //TO-DO: get the user from the session
-          user: { connect: { id: 1 } },
+          category: { connect: { id: categoryId } },
+          user: { connect: { id: userId } },
         },
       });
 
       return json({ success: true });
     } else if (actionType === INDEX_ACTIONS.CREATE_CATEGORY) {
       const title = formData.get("title") as string;
-
+      const userId = 1; //TO-DO: get the user from the session
       await db.category.create({
         data: {
           title,
-          createdBy: 1,
+          user: { connect: { id: userId }}
         },
       });
 

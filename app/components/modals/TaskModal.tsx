@@ -3,6 +3,7 @@ import { TASK_STATUS, getPrioritiesMap, getStatusString } from "~/constants/task
 import { useState, useEffect } from "react";
 import { useFetcher } from "@remix-run/react";
 import moment from "moment";
+import { INDEX_ACTIONS } from "~/constants/loader-actions/index-actions";
 
 export default function TaskModal({ task, opened, onClose, isCreate, categories }: TaskModalProps) {
   const [title, setTitle] = useState(task?.title || "");
@@ -32,7 +33,7 @@ export default function TaskModal({ task, opened, onClose, isCreate, categories 
         priority: priority || "",
         categoryId: +category || "",
         dueDate: moment(dueDate, "DD-MM-YYYY").isValid() ? moment(dueDate, "DD-MM-YYYY").format("YYYY-MM-DD") : null,
-        actionType: "update"
+        actionType: INDEX_ACTIONS.UPDATE
       }, {
         method: "put",
       });
@@ -44,7 +45,7 @@ export default function TaskModal({ task, opened, onClose, isCreate, categories 
     if (task) {
       fetcher.submit({
         taskId: task.id.toString(),
-        actionType: "delete"
+        actionType: INDEX_ACTIONS.CREATE
       }, {
         method: "delete",
       });
@@ -59,7 +60,7 @@ export default function TaskModal({ task, opened, onClose, isCreate, categories 
       priority: priority || 3,
       status: TASK_STATUS.PENDING,
       categoryId: category,
-      actionType: "create"
+      actionType: INDEX_ACTIONS.CREATE
     }, {
       method: "post",
     });

@@ -1,6 +1,8 @@
 import { Box, Button, Input, Modal, Text } from "@mantine/core";
 import { useFetcher } from "@remix-run/react";
 import { useState } from "react";
+import { CATEGORY_ID_ACTIONS } from "~/constants/loader-actions/category-id-actions";
+import { INDEX_ACTIONS } from "~/constants/loader-actions/index-actions";
 
 export default function CreateEditCategoryModal({ opened, onClose, mode , currentTitle}: CategoryModalProps) {
     const [title, setTitle] = useState(currentTitle ?? "");
@@ -9,7 +11,7 @@ export default function CreateEditCategoryModal({ opened, onClose, mode , curren
     const handleCreate = () => {
         fetcher.submit({
             title,
-            actionType: "createCategory"
+            actionType: INDEX_ACTIONS.CREATE_CATEGORY
         }, {
             method: "post",
         });
@@ -19,7 +21,7 @@ export default function CreateEditCategoryModal({ opened, onClose, mode , curren
     const handleEdit = () => {
         fetcher.submit({
             title,
-            actionType: "editCategory"
+            actionType: CATEGORY_ID_ACTIONS.EDIT_CATEGORY
         }, {
             method: "post",
         });

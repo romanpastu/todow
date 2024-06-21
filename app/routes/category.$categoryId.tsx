@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate, useFetcher } from "@remix-run/react";
+import { useLoaderData, useNavigate, useFetcher, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { Box, Button, Input, Text } from "@mantine/core";
 import { useState } from "react";
 import TaskList from "~/components/TaskList";
@@ -60,5 +60,23 @@ export default function CategoryRoute() {
       </Box>
       <TaskList tasks={filteredCategoryTasks} categories={data.categories} />
     </Box>
+  );
+}
+export function ErrorBoundary() {
+
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <div className="error-container">
+        There was an error loading the page. Sorry.
+      </div>
+    );
+  }
+
+  return (
+    <div className="error-container">
+        There was an error loading the page. Sorry.
+      </div>
   );
 }

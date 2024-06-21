@@ -98,4 +98,6 @@ export default function Index() {
       <Box className={styles.rightSpace}></Box>
     </Box>
   );
+
+  
 }

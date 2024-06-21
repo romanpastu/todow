@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { isRouteErrorResponse, useLoaderData, useNavigate, useRouteError } from "@remix-run/react";
 import TaskList from "~/components/TaskList";
 import { Box, Button, Input, Text } from "@mantine/core";
 import { useState } from "react";
@@ -33,5 +33,24 @@ export default function CompletedRoute() {
       </Box>
       <TaskList tasks={filteredCompletedTasks} categories={data.categories}/>
     </Box>
+  );
+}
+
+export function ErrorBoundary() {
+
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <div className="error-container">
+        There was an error loading the page. Sorry.
+      </div>
+    );
+  }
+
+  return (
+    <div className="error-container">
+        There was an error loading the page. Sorry.
+      </div>
   );
 }

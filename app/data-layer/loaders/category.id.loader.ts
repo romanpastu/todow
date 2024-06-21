@@ -3,10 +3,11 @@ import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
 
 export const loader = async ({ params }: {
-    params: {
-      categoryId: string;
-    }
-  }) => {
+  params: {
+    categoryId: string;
+  }
+}) => {
+  try {
     const { categoryId } = params;
     const tasksFromCategory = await db.task.findMany({
       where: {
@@ -17,5 +18,10 @@ export const loader = async ({ params }: {
     });
     const category = await db.category.findUnique({ where: { id: +categoryId } });
     const categories = await db.category.findMany();
-    return json({ tasks: tasksFromCategory, category, categories});
-  };
+    return json({ tasks: tasksFromCategory, category, categories });
+  } catch (error) {
+    console.error(error);
+    // Customize the status code and message based on the error
+    throw new Response("An error occurred", { status: 500 });
+  }
+};

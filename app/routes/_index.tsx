@@ -42,12 +42,7 @@ export default function Index() {
   return (
     <Box className={styles.container}>
       <Box className={styles.sidebar}>
-        <Box style={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: '20px',
-          alignItems: 'center',
-        }}>
+        <Box className={styles.categoryUtils}>
           <Text size="15px" className={styles.sidebarTitle}>Categories</Text>
           <Input
             placeholder="Search category"

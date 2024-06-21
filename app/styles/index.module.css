@@ -20,6 +20,15 @@
   height: calc(100vh - 100px);
 }
 
+.categoryUtils {
+
+  display: 'flex';
+  flex-direction: 'row';
+  gap: '20px';
+  align-items: 'center';
+
+}
+
 .categoryItem {
   cursor: pointer;
   padding: 8px;

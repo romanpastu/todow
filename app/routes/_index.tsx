@@ -1,131 +1,22 @@
 import { Box, ScrollArea, Button, Input, Text } from "@mantine/core";
 import { useState } from "react";
-import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { TASK_STATUS } from "~/constants/tasks";
-import { db } from "~/utils/db.server";
 import TaskList from "~/components/TaskList";
-import TaskModal from "~/components/TaskModal";
 import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
-import styles from "~/styles/index.module.css"; // Import the CSS module
-import { TaskWithCategory } from "~/components/TaskITem";
+import styles from "~/styles/index.module.css"; 
 import { convertTaskDates } from "~/utils/helpers";
 import { IconPlus } from "@tabler/icons-react";
-import CreateEditCategoryModal from "~/components/CreateEditCategoryModal";
+import CreateEditCategoryModal from "~/components/modals/CreateEditCategoryModal";
+import TaskModal from "~/components/modals/TaskModal";
+import { loader as indexLoader } from "../data-layer/loaders/index.loader"; 
+import { action as indexAction } from "../data-layer/actions/index.action"; 
 
-
-export type TaskWithCategoryJson = Omit<TaskWithCategory, "createdAt" | "updatedAt" | "dateSetToDoingDone" | "dueDate" | "category"> & {
-  createdAt: string;
-  updatedAt: string;
-  dueDate: string | null;
-  dateSetToDoingDone: string | null;
-  category: {
-    id: number;
-    title: string;
-    createdAt: string;
-    updatedAt: string;
-    createdBy: number;
-  } | null;
-};
-
-export const loader = async () => {
-  const pendingTasks = await db.task.findMany({ where: { status: TASK_STATUS.PENDING }, include: { category: true } });
-  const doingTasks = await db.task.findMany({ where: { status: TASK_STATUS.DOING }, include: { category: true }, });
-  const doneTasks = await db.task.findMany({ where: { status: TASK_STATUS.DONE }, include: { category: true }, });
-  const categories = await db.category.findMany();
-
-  return json({
-    pendingTasks,
-    doingTasks,
-    doneTasks,
-    categories,
-  });
-};
-
-export const action = async ({ request }: { request: Request }) => {
-  const formData = await request.formData();
-  const taskId = formData.get("taskId") as string;
-  const actionType = formData.get("actionType") as string;
-  if (actionType === "start" || actionType === "doing") {
-    await db.task.update({
-      where: { id: +taskId },
-      data: { status: TASK_STATUS.DOING },
-    });
-  } else if (actionType === "cancel") {
-    await db.task.update({
-      where: { id: +taskId },
-      data: { status: TASK_STATUS.PENDING },
-    });
-  } else if (actionType === "done") {
-    await db.task.update({
-      where: { id: +taskId },
-      data: { status: TASK_STATUS.DONE },
-    });
-  } else if (actionType === "update") {
-    const title = formData.get("title") as string;
-    const description = formData.get("description") as string;
-    const priority = parseInt(formData.get("priority") as string);
-    const categoryId = parseInt(formData.get("categoryId") as string);
-    const dueDate = formData.get("dueDate") as string;
-
-    await db.task.update({
-      where: { id: +taskId },
-      data: {
-        title,
-        description,
-        priority,
-        dueDate: dueDate ? new Date(dueDate) : null,
-        category: { connect: { id: categoryId } },
-      },
-    });
-
-    return json({ success: true });
-  } else if (actionType === "delete") {
-    await db.task.delete({
-      where: { id: +taskId },
-    });
-  } else if (actionType === "create") {
-    const title = formData.get("title") as string;
-    const description = formData.get("description") as string;
-    const priority = parseInt(formData.get("priority") as string);
-
-    await db.task.create({
-      data: {
-        title,
-        description,
-        priority,
-        status: TASK_STATUS.PENDING,
-        //TO-DO: get the user from the session
-        user: { connect: { id: 1 } },
-      },
-    });
-
-    return json({ success: true });
-  } else if (actionType === "createCategory") {
-    const title = formData.get("title") as string;
-
-    await db.category.create({
-      data: {
-        title,
-        createdBy: 1,
-      },
-    });
-
-    return json({ success: true });
-  }
-
-  return json({ success: true });
-};
+export const loader = indexLoader; 
+export const action = indexAction; 
 
 export default function Index() {
-  const data = useLoaderData<{
-    pendingTasks: TaskWithCategoryJson[];
-    doingTasks: TaskWithCategoryJson[];
-    doneTasks: TaskWithCategoryJson[];
-    categories: { id: number; title: string }[];
-  }>();
-  console.log(data.pendingTasks)
+  const data = useLoaderData<IndexLoader>();
 
   const doingTasks = data.doingTasks.map(convertTaskDates);
   const doneTasks = data.doneTasks.map(convertTaskDates);

@@ -2,20 +2,18 @@
 import { Box, Button, Text } from "@mantine/core";
 import { useFetcher } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
-import type { Category, Task } from "@prisma/client";
 import { IconRotate } from '@tabler/icons-react';
 import '../styles/rotate.css'
 import { useDisclosure } from "@mantine/hooks";
-import TaskModal from "./TaskModal";
+import TaskModal from "./modals/TaskModal";
 
 
-export type TaskWithCategory = Task & {
-  category?: Category
-};
+
 interface TaskItemProps {
   task: TaskWithCategory;
   categories: { id: number; title: string }[];
 }
+
 const getBackGroundColor = (status: number) => {
   switch (status) {
     case TASK_STATUS.PENDING:

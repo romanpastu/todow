@@ -1,60 +1,20 @@
-import { json, useLoaderData, useNavigate, useFetcher, redirect } from "@remix-run/react";
-import { db } from "~/utils/db.server";
-import { TaskWithCategoryJson } from "./_index";
+import { useLoaderData, useNavigate, useFetcher } from "@remix-run/react";
 import { Box, Button, Input, Text } from "@mantine/core";
 import { useState } from "react";
 import TaskList from "~/components/TaskList";
-import { TASK_STATUS } from "~/constants/tasks";
-import { Category } from "@prisma/client";
 import styles from "~/styles/page-list.module.css";
 import { convertTaskDates } from "~/utils/helpers";
 import { IconPencil } from "@tabler/icons-react";
-import CreateEditCategoryModal from "~/components/CreateEditCategoryModal";
+import CreateEditCategoryModal from "~/components/modals/CreateEditCategoryModal";
 import { useDisclosure } from "@mantine/hooks";
+import { loader as categoryIdLoader } from "../data-layer/loaders/category.id.loader";
+import { action as categoryIdAction } from "../data-layer/actions/category.id.action";
 
-export const loader = async ({ params }: {
-  params: {
-    categoryId: string;
-  }
-}) => {
-  const { categoryId } = params;
-  const tasksFromCategory = await db.task.findMany({
-    where: {
-      categoryId: +categoryId,
-      status: { not: TASK_STATUS.FINISHED }
-    },
-    include: { category: true }
-  });
-  const category = await db.category.findUnique({ where: { id: +categoryId } });
-  return json({ tasks: tasksFromCategory, category });
-};
-
-export const action = async ({ request, params }: { request: Request, params : {
-  categoryId: string;
-} }) => {
-  const formData = await request.formData();
-  const actionType = formData.get("actionType") as string;
-  const categoryId = formData.get("categoryId") as string;
-  if (actionType === "deleteCategory") {
-    await db.category.delete({ where: { id: +categoryId } });
-    return redirect("/");
-  }else if(actionType === "editCategory") {
-    
-    const title = formData.get("title") as string;
-    const { categoryId } = params;
-    await db.category.update({
-      where: { id: +categoryId },
-      data: {
-        title,
-      },
-    });
-
-    return json({ success: true });
-  }
-}
+export const loader = categoryIdLoader;
+export const action = categoryIdAction;
 
 export default function CategoryRoute() {
-  const data = useLoaderData<{ tasks: TaskWithCategoryJson[], category: Category }>();
+  const data = useLoaderData<CategoryIdIndexLoader>();
   const categoryTasks = data.tasks.map(convertTaskDates);
   const category = data.category;
   const [searchQuery, setSearchQuery] = useState("");
@@ -94,11 +54,11 @@ export default function CategoryRoute() {
         <Button onClick={() => navigate("/")}>Go back</Button>
         <fetcher.Form method="post">
           <input type="hidden" name="categoryId" value={category.id} />
-          <input type="hidden" name="actionType" value="deleteCategory" />
+          <input type="hidden" name="actionType" value="" />
           <Button color="red" type="submit">Delete Category</Button>
         </fetcher.Form>
       </Box>
-      <TaskList tasks={filteredCategoryTasks} />
+      <TaskList tasks={filteredCategoryTasks} categories={data.categories} />
     </Box>
   );
 }

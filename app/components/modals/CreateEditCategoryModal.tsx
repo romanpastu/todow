@@ -2,12 +2,7 @@ import { Box, Button, Input, Modal, Text } from "@mantine/core";
 import { useFetcher } from "@remix-run/react";
 import { useState } from "react";
 
-export default function CreateEditCategoryModal({ opened, onClose, mode , currentTitle}: {
-    opened: boolean;
-    onClose: () => void;
-    mode: "create" | "edit";
-    currentTitle?: string;
-}) {
+export default function CreateEditCategoryModal({ opened, onClose, mode , currentTitle}: CategoryModalProps) {
     const [title, setTitle] = useState(currentTitle ?? "");
     const fetcher = useFetcher();
 

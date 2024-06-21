@@ -1,5 +1,6 @@
+/* eslint-disable react/prop-types */
 import { Box , Text} from "@mantine/core";
-import TaskItem, { TaskWithCategory } from "./TaskITem";
+import TaskItem from "./TaskITem";
 
 
 interface TaskListProps {
@@ -7,10 +8,7 @@ interface TaskListProps {
   categories: { id: number; title: string }[];
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, categories } : {
-    tasks: TaskWithCategory[];
-    categories: { id: number; title: string }[];
-}) => {
+const TaskList: React.FC<TaskListProps> = ({ tasks, categories }) => {
   return tasks.length === 0 ? (
     <Box
       style={{

@@ -1,16 +1,10 @@
 import { Box, Button, Grid, Input, Modal, Select, Text, TextInput, Textarea } from "@mantine/core";
 import { TASK_STATUS, getPrioritiesMap, getStatusString } from "~/constants/tasks";
-import { TaskWithCategory } from "./TaskITem";
 import { useState, useEffect } from "react";
 import { useFetcher } from "@remix-run/react";
 import moment from "moment";
-export default function TaskModal({ task, opened, onClose, isCreate, categories }: {
-  task: TaskWithCategory | null;
-  opened: boolean;
-  onClose: () => void;
-  isCreate?: boolean;
-  categories: { id: number; title: string }[];
-}) {
+
+export default function TaskModal({ task, opened, onClose, isCreate, categories }: TaskModalProps) {
   const [title, setTitle] = useState(task?.title || "");
   const [description, setDescription] = useState(task?.description || "");
   const [priority, setPriority] = useState(task?.priority?.toString());
@@ -30,9 +24,7 @@ export default function TaskModal({ task, opened, onClose, isCreate, categories 
   }, [task, opened]);
 
   const handleUpdate = () => {
-    
     if (task) {
-      console.log(dueDate, moment(dueDate).isValid());
       fetcher.submit({
         taskId: task.id.toString(),
         title,

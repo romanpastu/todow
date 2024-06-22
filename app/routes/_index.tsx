@@ -12,7 +12,7 @@ import TaskModal from "~/components/modals/TaskModal";
 import { loader as indexLoader } from "../data-layer/loaders/index.loader"; 
 import { action as indexAction } from "../data-layer/actions/index.action"; 
 
-export const loader = indexLoader; 
+export const loader = async ({ request }: { request: Request }) => indexLoader({ request });
 export const action = indexAction; 
 
 export default function Index() {

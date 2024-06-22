@@ -2,9 +2,9 @@ import { PrismaClient, User, Category } from "@prisma/client";
 const db = new PrismaClient();
 
 async function seed() {
-//   await db.user.deleteMany();
-//   await db.category.deleteMany();
-//   await db.task.deleteMany();
+  //   await db.user.deleteMany();
+  //   await db.category.deleteMany();
+  //   await db.task.deleteMany();
 
   const users = await Promise.all(
     getUsers().map((user) => {
@@ -113,13 +113,11 @@ function getTasks(users: User[], categories: Category[]) {
 const getUsers = (): Omit<User, "id" | "createdAt" | "updatedAt">[] => {
   return [
     {
-      email: "user1@example.com",
-      name: "User One",
+      username: "user1",
       password: "password1",
     },
     {
-      email: "user2@example.com",
-      name: "User Two",
+      username: "user2",
       password: "password2",
     },
   ];

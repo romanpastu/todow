@@ -5,8 +5,8 @@ import { useState } from "react";
 import styles from "~/styles/page-list.module.css";
 import { convertTaskDates } from "~/utils/helpers";
 import { loader as completedLoader } from "../data-layer/loaders/completed.loader"; 
-export const loader = completedLoader
 
+export const loader = async ({ request }: { request: Request }) => completedLoader({ request });
 export function links() {
   return [{ rel: "stylesheet", href: styles }];
 }

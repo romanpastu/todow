@@ -10,7 +10,10 @@ import { useDisclosure } from "@mantine/hooks";
 import { loader as categoryIdLoader } from "../data-layer/loaders/category.id.loader";
 import { action as categoryIdAction } from "../data-layer/actions/category.id.action";
 
-export const loader = categoryIdLoader;
+export const loader = async ({ request, params }: { request: Request, params: {
+  categoryId: string;
+}}) => categoryIdLoader({ request, params });
+
 export const action = categoryIdAction;
 
 export default function CategoryRoute() {

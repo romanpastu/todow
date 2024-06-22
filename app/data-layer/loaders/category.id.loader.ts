@@ -1,12 +1,15 @@
 import { json } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
+import { isLogIn } from "~/utils/session.server";
 
-export const loader = async ({ params }: {
-  params: {
-    categoryId: string;
+export const loader = async ({ request, params }: { request: Request, params: {
+  categoryId: string;
+}}) => {
+  const loginRedirect = await isLogIn(request);
+  if (loginRedirect) {
+    return loginRedirect;
   }
-}) => {
   try {
     const { categoryId } = params;
     const tasksFromCategory = await db.task.findMany({

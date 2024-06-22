@@ -1,8 +1,13 @@
 import { json } from "@remix-run/react";
 import { TASK_STATUS } from "~/constants/tasks";
 import { db } from "~/utils/db.server";
+import { isLogIn } from "~/utils/session.server";
 
-export const loader = async () => {
+export const loader = async ({ request }: { request: Request }) => {
+  const loginRedirect = await isLogIn(request);
+  if (loginRedirect) {
+    return loginRedirect;
+  }
   try {
     const completedTasks = await db.task.findMany({
       where: { status: TASK_STATUS.FINISHED },

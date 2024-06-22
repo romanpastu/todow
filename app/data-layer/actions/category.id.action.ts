@@ -12,6 +12,7 @@ export const action = async ({ request, params }: {
     const actionType = formData.get("actionType") as string;
     const categoryId = formData.get("categoryId") as string;
     if (actionType === CATEGORY_ID_ACTIONS.DELETE_CATEGORY) {
+      console.log("DELETEING")
       await db.category.delete({ where: { id: +categoryId } });
       return redirect("/");
     } else if (actionType === CATEGORY_ID_ACTIONS.EDIT_CATEGORY) {

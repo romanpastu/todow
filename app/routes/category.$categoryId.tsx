@@ -9,6 +9,7 @@ import CreateEditCategoryModal from "~/components/modals/CreateEditCategoryModal
 import { useDisclosure } from "@mantine/hooks";
 import { loader as categoryIdLoader } from "../data-layer/loaders/category.id.loader";
 import { action as categoryIdAction } from "../data-layer/actions/category.id.action";
+import { CATEGORY_ID_ACTIONS } from "~/constants/loader-actions/category-id-actions";
 
 export const loader = async ({ request, params }: { request: Request, params: {
   categoryId: string;
@@ -57,7 +58,7 @@ export default function CategoryRoute() {
         <Button onClick={() => navigate("/")}>Go back</Button>
         <fetcher.Form method="post">
           <input type="hidden" name="categoryId" value={category.id} />
-          <input type="hidden" name="actionType" value="" />
+          <input type="hidden" name="actionType" value={CATEGORY_ID_ACTIONS.DELETE_CATEGORY} />
           <Button color="red" type="submit">Delete Category</Button>
         </fetcher.Form>
       </Box>

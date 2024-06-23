@@ -31,3 +31,7 @@ How to deploy:
  - docker compose down -v  # Kill the running containers and remove the volumes
  - docker compose build # Builds the image
  - docker compose up -d # Starts the containers in detached mode
+
+Cron Job
+    - THe server must run a cronJob to process the tasks, every monday at 00:00
+        0 0 * * 1 curl -X GET "http://localhost:3000/process_tasks?secret=xxxx"

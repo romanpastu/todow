@@ -45,7 +45,7 @@ export default function TaskModal({ task, opened, onClose, isCreate, categories 
     if (task) {
       fetcher.submit({
         taskId: task.id.toString(),
-        actionType: INDEX_ACTIONS.CREATE
+        actionType: INDEX_ACTIONS.DELETE
       }, {
         method: "delete",
       });

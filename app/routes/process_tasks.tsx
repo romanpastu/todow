@@ -16,7 +16,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     try {
         doneTasks = await db.task.findMany({
             where: { status: TASK_STATUS.DONE },
-            include: { category: true },
         });
     } catch (err) {
         console.error(err);

@@ -12,4 +12,4 @@ services:
     volumes:
       - /home/roman/db/sqlite:/usr/src/app/data
     command: >
-      sh -c "if [ ! -f /usr/src/app/data/prod.db ]; then npx prisma db push; fi && npm start"
+      sh -c "npm start"

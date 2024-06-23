@@ -24,6 +24,10 @@ How to deploy:
         DATABASE_URL="file:/usr/src/app/data/prod.db"
         PROCESS_TASKS_SECRET=xxx
         SESSION_SECRET=xxx
+ - If you are missing the databse, you will need to create a .env file with the following content
+        DATABASE_URL="file:/home/roman/db/sqlite/prod.db"
+    - Run the following commands
+        npx prisma db push
  - docker compose down -v  # Kill the running containers and remove the volumes
  - docker compose build # Builds the image
  - docker compose up -d # Starts the containers in detached mode

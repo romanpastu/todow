@@ -86,7 +86,7 @@ export default function Index() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.currentTarget.value)}
             />
-            <Button onClick={() => navigate('/completed')}>Completed Tasks</Button>
+            <Button onClick={() => navigate('/completed')}>Go To Completed Tasks</Button>
           </Box>
         </Box>
         <ScrollArea className={styles.pendingTasks}>

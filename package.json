@@ -10,11 +10,9 @@
     "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc",
     "studio": "prisma studio",
-    "prisma:dev:push": "dotenv -e .env.development -- npx prisma db push",
-    "prisma:dev:seed": "dotenv -e .env.development -- npx ts-node --esm --require tsconfig-paths/register prisma/seed.ts",
-    "prisma:dev:reset": "dotenv -e .env.development -- npx prisma migrate reset",
-    "prisma:prod:push": "dotenv -e .env.production -- npx prisma db push",
-    "prisma:prod:reset": "dotenv -e .env.production -- npx prisma migrate reset"
+    "prisma:push": "npx prisma db push",
+    "prisma:seed": "npx ts-node --esm --require tsconfig-paths/register prisma/seed.ts",
+    "prisma:reset": "npx prisma migrate reset"
   },
   "dependencies": {
     "@mantine/core": "^7.10.1",

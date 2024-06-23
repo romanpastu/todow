@@ -22,7 +22,7 @@ export default function CompletedRoute() {
 
   return (
     <Box className={styles.container}>
-      <Text size="50px" className={styles.header}>Completed Tasks</Text>
+      <Text size="50px" className={styles.header}>GoTo Completed Tasks</Text>
       <Box className={styles.searchContainer}>
         <Input
           placeholder="Search task"

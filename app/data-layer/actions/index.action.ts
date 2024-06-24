@@ -11,6 +11,7 @@ export const action = async ({ request }: { request: Request }) => {
     const taskId = formData.get("taskId") as string;
     const actionType = formData.get("actionType") as string;
     const user = await getUser(request);
+  
     if (actionType === INDEX_ACTIONS.START || actionType === INDEX_ACTIONS.DOING) {
       await db.task.update({
         where: { id: +taskId },
@@ -38,10 +39,11 @@ export const action = async ({ request }: { request: Request }) => {
           title,
           description,
           priority,
-          dueDate: moment(dueDate, "DD-MM-YYYY").isValid() ? moment(dueDate, "DD-MM-YYYY").format("YYYY-MM-DD") : null,
+          dueDate: moment(dueDate, "YYYY-MM-DD").isValid() ? moment(dueDate).toISOString() : null,
           category: { connect: { id: categoryId } },
         },
       });
+      
 
       return json({ success: true });
     } else if (actionType === INDEX_ACTIONS.DELETE) {

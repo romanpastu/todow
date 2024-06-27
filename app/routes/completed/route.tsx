@@ -4,14 +4,12 @@ import { Box, Button, Input, Text } from "@mantine/core";
 import { useState } from "react";
 import styles from "~/styles/page-list.module.css";
 import { convertTaskDates } from "~/utils/helpers";
-import { loader as completedLoader } from "../data-layer/loaders/completed.loader"; 
-import { action as indexAction } from "../data-layer/actions/index.action"; 
+import { loader as completedLoader } from "../../data-layer/loaders/completed.loader"; 
+import { action as indexAction } from "../../data-layer/actions/index.action"; 
 export const loader = async ({ request }: { request: Request }) => completedLoader({ request });
 export const action = indexAction; 
 
-export function links() {
-  return [{ rel: "stylesheet", href: styles }];
-}
+
 
 export default function CompletedRoute() {
   const data = useLoaderData<CompletedIndexLoader>();

@@ -7,8 +7,8 @@ import { convertTaskDates } from "~/utils/helpers";
 import { IconPencil } from "@tabler/icons-react";
 import CreateEditCategoryModal from "~/components/modals/CreateEditCategoryModal";
 import { useDisclosure } from "@mantine/hooks";
-import { loader as categoryIdLoader } from "../data-layer/loaders/category.id.loader";
-import { action as categoryIdAction } from "../data-layer/actions/category.id.action";
+import { loader as categoryIdLoader } from "../../data-layer/loaders/category.id.loader";
+import { action as categoryIdAction } from "../../data-layer/actions/category.id.action";
 import { CATEGORY_ID_ACTIONS } from "~/constants/loader-actions/category-id-actions";
 
 export const loader = async ({ request, params }: { request: Request, params: {

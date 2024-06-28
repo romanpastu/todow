@@ -1,19 +1,18 @@
-import { Box, ScrollArea, Button, Input, Text } from "@mantine/core";
+import { Box, ScrollArea, Button, Input } from "@mantine/core";
 import { useState } from "react";
 import { useLoaderData } from "@remix-run/react";
 import TaskList from "~/components/TaskList";
 import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
-import styles from "~/styles/index.module.css"; 
+import styles from "~/styles/index.module.css";
 import { convertTaskDates } from "~/utils/helpers";
-import { IconPlus } from "@tabler/icons-react";
-import CreateEditCategoryModal from "~/components/modals/CreateEditCategoryModal";
 import TaskModal from "~/components/modals/TaskModal";
-import { loader as indexLoader } from "../data-layer/loaders/index.loader"; 
-import { action as indexAction } from "../data-layer/actions/index.action"; 
+import { loader as indexLoader } from "../data-layer/loaders/index.loader";
+import { action as indexAction } from "../data-layer/actions/index.action";
+import Sidebar from "~/components/Sidebar";
 
 export const loader = async ({ request }: { request: Request }) => indexLoader({ request });
-export const action = indexAction; 
+export const action = indexAction;
 
 export default function Index() {
   const data = useLoaderData<IndexLoader>();
@@ -23,7 +22,6 @@ export default function Index() {
   const pendingTasks = data.pendingTasks.map(convertTaskDates);
   const categories = data.categories;
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchQueryCategory, setSearchQueryCategory] = useState("");
 
   const filteredPendingTasks = pendingTasks.filter((task) =>
     task.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -36,42 +34,12 @@ export default function Index() {
     });
 
   const [opened, { open, close }] = useDisclosure(false);
-  const [categoryModalOpened, { open: categoryModalOpen, close: categoryModalClose }] = useDisclosure(false);
   const navigate = useNavigate();
 
   return (
     <Box className={styles.container}>
-      <Box className={styles.sidebar}>
-        <Box className={styles.categoryUtils}>
-          <Text size="15px" className={styles.sidebarTitle}>Categories</Text>
-          <Input
-            placeholder="Search category"
-            value={searchQueryCategory}
-            onChange={(e) => setSearchQueryCategory(e.currentTarget.value)}
-          />
-          <IconPlus size={20} style={{
-            cursor: 'pointer',
-          }}
-            onClick={categoryModalOpen}
-          />
-
-        </Box>
-        <ScrollArea className={styles.categoryList}>
-          {categories.filter((cat) => cat.title.toLocaleLowerCase().includes(searchQueryCategory.toLowerCase())).map((category) => (
-            <Box
-              key={category.id}
-              onClick={() => navigate(`/category/${category.id}`)}
-              className={styles.categoryItem}
-            >
-              <Text>{category.title} - ({
-                [...doingTasks, ...doneTasks, ...pendingTasks].filter(task => task.category?.id === category.id)?.length
-              })</Text>
-            </Box>
-          ))}
-        </ScrollArea>
-      </Box>
+      <Sidebar categories={categories} doneTasks={doneTasks} doingTasks={doingTasks} pendingTasks={pendingTasks} />
       <TaskModal task={null} opened={opened} onClose={close} isCreate={true} categories={categories} />
-      <CreateEditCategoryModal opened={categoryModalOpened} onClose={categoryModalClose} mode={"create"} />
       <Box className={styles.main}>
         <ScrollArea className={styles.doingDoneTasks}>
           <Box className={styles.taskListContainer}>
@@ -99,5 +67,5 @@ export default function Index() {
     </Box>
   );
 
-  
+
 }
